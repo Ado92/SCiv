@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (int i = 1; i < mList.size(); i++) {
             tv1.setVisibility(View.VISIBLE);
-            tv1.append("\n" + mList.get(i).getName() + "\n" + mList.get(i).getVendor() + "\n" + mList.get(i).getVersion());
+            tv1.append("\n" + mList.get(i).getName() + "\n" + mList.get(i).getVendor() + "\n" + mList.get(i).getVersion() + "\n\n");
         }
     }
 
