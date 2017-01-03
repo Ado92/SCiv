@@ -66,15 +66,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         tv2 = (TextView) findViewById(R.id.textView3);
         tv2.setVisibility(View.GONE);
-
+/*
         tv1.setVisibility(View.INVISIBLE);
         tv2.setVisibility(View.INVISIBLE);
-
+*/
         initializeTextViews();
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mList= mSensorManager.getSensorList(Sensor.TYPE_ALL);
 
+        initializeSensors();
 /*
         mList= mSensorManager.getSensorList(Sensor.TYPE_ALL);
 
@@ -84,131 +85,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 */
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
-            // Success! There's a pressure sensor.
-            mACCELEROMETER = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        }
-        else {
-            // Failure! No pressure sensor.
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) != null){
-            // Success! There's a pressure sensor.
-            mAMBIENT_TEMPERATURE = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE) != null){
-            // Success! There's a pressure sensor.
-            mDEVICE_PRIVATE_BASE = mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) != null){
-            // Success! There's a pressure sensor.
-            mGAME_ROTATION_VECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) != null){
-            // Success! There's a pressure sensor.
-            mGEOMAGNETIC_ROTATION_VECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null){
-            // Success! There's a pressure sensor.
-            mGRAVITY = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null){
-            // Success! There's a pressure sensor.
-            mGYROSCOPE = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED) != null){
-            // Success! There's a pressure sensor.
-            mGYROSCOPE_UNCALIBRATED = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT) != null){
-            // Success! There's a pressure sensor.
-            mHEART_BEAT = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) != null){
-            // Success! There's a pressure sensor.
-            mHEART_RATE = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) != null){
-            // Success! There's a pressure sensor.
-            mLIGHT = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) != null){
-            // Success! There's a pressure sensor.
-            mLINEAR_ACCELERATION = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null){
-            // Success! There's a pressure sensor.
-            mMAGNETIC_FIELD = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) != null){
-            // Success! There's a pressure sensor.
-            mMAGNETIC_FIELD_UNCALIBRATED = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT) != null){
-            // Success! There's a pressure sensor.
-            mMOTION_DETECT = mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF) != null){
-            // Success! There's a pressure sensor.
-            mPOSE_6DOF = mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE) != null){
-            // Success! There's a pressure sensor.
-            mPRESSURE = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY) != null){
-            // Success! There's a pressure sensor.
-            mPROXIMITY = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) != null){
-            // Success! There's a pressure sensor.
-            mRELATIVE_HUMIDITY = mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) != null){
-            // Success! There's a pressure sensor.
-            mROTATION_VECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION) != null){
-            // Success! There's a pressure sensor.
-            mSIGNIFICANT_MOTION = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT) != null){
-            // Success! There's a pressure sensor.
-            mSTATIONARY_DETECT = mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null){
-            // Success! There's a pressure sensor.
-            mSTEP_COUNTER = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        }
-
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null){
-            // Success! There's a pressure sensor.
-            mSTEP_DETECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-        }
 
 
     }
+
 
 
     @Override
@@ -283,11 +163,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
 
-/*
+
         for (int i = 1; i < mList.size(); i++) {
             mSensorManager.registerListener(this, mList.get(i), SensorManager.SENSOR_DELAY_NORMAL);
         }
- */
+
 
     }
 
@@ -296,6 +176,253 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onPause();
         mSensorManager.unregisterListener(this);
     }
+
+    private void initializeSensors() {
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
+            // Success! There's a pressure sensor.
+            mACCELEROMETER = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            m1a.setVisibility(View.VISIBLE);
+            m1b.setVisibility(View.VISIBLE);
+
+            m1a.append("\nNázov: " + mACCELEROMETER.getName() + "\nPredajca: " + mACCELEROMETER.getVendor() + "\nVerzia: " + mACCELEROMETER.getVersion() + "\n");
+
+        }
+        else {
+            // Failure! No pressure sensor.
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) != null){
+            // Success! There's a pressure sensor.
+            mAMBIENT_TEMPERATURE = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+            m2a.setVisibility(View.VISIBLE);
+            m2b.setVisibility(View.VISIBLE);
+
+            m2a.append("\nNázov: " + mAMBIENT_TEMPERATURE.getName() + "\nPredajca: " + mAMBIENT_TEMPERATURE.getVendor() + "\nVerzia: " + mAMBIENT_TEMPERATURE.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE) != null){
+            // Success! There's a pressure sensor.
+            mDEVICE_PRIVATE_BASE = mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE);
+            m3a.setVisibility(View.VISIBLE);
+            m3b.setVisibility(View.VISIBLE);
+
+            m3a.append("\nNázov: " + mDEVICE_PRIVATE_BASE.getName() + "\nPredajca: " + mDEVICE_PRIVATE_BASE.getVendor() + "\nVerzia: " + mDEVICE_PRIVATE_BASE.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) != null){
+            // Success! There's a pressure sensor.
+            mGAME_ROTATION_VECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
+            m4a.setVisibility(View.VISIBLE);
+            m4b.setVisibility(View.VISIBLE);
+
+            m4a.append("\nNázov: " + mGAME_ROTATION_VECTOR.getName() + "\nPredajca: " + mGAME_ROTATION_VECTOR.getVendor() + "\nVerzia: " + mGAME_ROTATION_VECTOR.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) != null){
+            // Success! There's a pressure sensor.
+            mGEOMAGNETIC_ROTATION_VECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR);
+            m5a.setVisibility(View.VISIBLE);
+            m5b.setVisibility(View.VISIBLE);
+
+            m5a.append("\nNázov: " + mGEOMAGNETIC_ROTATION_VECTOR.getName() + "\nPredajca: " + mGEOMAGNETIC_ROTATION_VECTOR.getVendor() + "\nVerzia: " + mGEOMAGNETIC_ROTATION_VECTOR.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null){
+            // Success! There's a pressure sensor.
+            mGRAVITY = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+            m6a.setVisibility(View.VISIBLE);
+            m6b.setVisibility(View.VISIBLE);
+
+            m6a.append("\nNázov: " + mGRAVITY.getName() + "\nPredajca: " + mGRAVITY.getVendor() + "\nVerzia: " + mGRAVITY.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null){
+            // Success! There's a pressure sensor.
+            mGYROSCOPE = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+            m7a.setVisibility(View.VISIBLE);
+            m7b.setVisibility(View.VISIBLE);
+
+            m7a.append("\nNázov: " + mGRAVITY.getName() + "\nPredajca: " + mGRAVITY.getVendor() + "\nVerzia: " + mGRAVITY.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED) != null){
+            // Success! There's a pressure sensor.
+            mGYROSCOPE_UNCALIBRATED = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
+            m8a.setVisibility(View.VISIBLE);
+            m8b.setVisibility(View.VISIBLE);
+
+            m8a.append("\nNázov: " + mGYROSCOPE_UNCALIBRATED.getName() + "\nPredajca: " + mGYROSCOPE_UNCALIBRATED.getVendor() + "\nVerzia: " + mGYROSCOPE_UNCALIBRATED.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT) != null){
+            // Success! There's a pressure sensor.
+            mHEART_BEAT = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT);
+            m9a.setVisibility(View.VISIBLE);
+            m9b.setVisibility(View.VISIBLE);
+
+            m9a.append("\nNázov: " + mHEART_BEAT.getName() + "\nPredajca: " + mHEART_BEAT.getVendor() + "\nVerzia: " + mHEART_BEAT.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) != null){
+            // Success! There's a pressure sensor.
+            mHEART_RATE = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+            m10a.setVisibility(View.VISIBLE);
+            m10b.setVisibility(View.VISIBLE);
+
+            m10a.append("\nNázov: " + mHEART_RATE.getName() + "\nPredajca: " + mHEART_RATE.getVendor() + "\nVerzia: " + mHEART_RATE.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) != null){
+            // Success! There's a pressure sensor.
+            mLIGHT = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+            m11a.setVisibility(View.VISIBLE);
+            m11b.setVisibility(View.VISIBLE);
+
+            m11a.append("\nNázov: " + mLIGHT.getName() + "\nPredajca: " + mLIGHT.getVendor() + "\nVerzia: " + mLIGHT.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) != null){
+            // Success! There's a pressure sensor.
+            mLINEAR_ACCELERATION = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+            m12a.setVisibility(View.VISIBLE);
+            m12b.setVisibility(View.VISIBLE);
+
+            m12a.append("\nNázov: " + mLINEAR_ACCELERATION.getName() + "\nPredajca: " + mLINEAR_ACCELERATION.getVendor() + "\nVerzia: " + mLINEAR_ACCELERATION.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null){
+            // Success! There's a pressure sensor.
+            mMAGNETIC_FIELD = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+            m13a.setVisibility(View.VISIBLE);
+            m13b.setVisibility(View.VISIBLE);
+
+            m13a.append("\nNázov: " + mMAGNETIC_FIELD.getName() + "\nPredajca: " + mMAGNETIC_FIELD.getVendor() + "\nVerzia: " + mMAGNETIC_FIELD.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) != null){
+            // Success! There's a pressure sensor.
+            mMAGNETIC_FIELD_UNCALIBRATED = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED);
+            m14a.setVisibility(View.VISIBLE);
+            m14b.setVisibility(View.VISIBLE);
+
+            m14a.append("\nNázov: " + mMAGNETIC_FIELD_UNCALIBRATED.getName() + "\nPredajca: " + mMAGNETIC_FIELD_UNCALIBRATED.getVendor() + "\nVerzia: " + mMAGNETIC_FIELD_UNCALIBRATED.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT) != null){
+            // Success! There's a pressure sensor.
+            mMOTION_DETECT = mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT);
+            m15a.setVisibility(View.VISIBLE);
+            m15b.setVisibility(View.VISIBLE);
+
+            m15a.append("\nNázov: " + mMOTION_DETECT.getName() + "\nPredajca: " + mMOTION_DETECT.getVendor() + "\nVerzia: " + mMOTION_DETECT.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF) != null){
+            // Success! There's a pressure sensor.
+            mPOSE_6DOF = mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF);
+            m16a.setVisibility(View.VISIBLE);
+            m16b.setVisibility(View.VISIBLE);
+
+            m16a.append("\nNázov: " + mPOSE_6DOF.getName() + "\nPredajca: " + mPOSE_6DOF.getVendor() + "\nVerzia: " + mPOSE_6DOF.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE) != null){
+            // Success! There's a pressure sensor.
+            mPRESSURE = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+            m17a.setVisibility(View.VISIBLE);
+            m17b.setVisibility(View.VISIBLE);
+
+            m17a.append("\nNázov: " + mPRESSURE.getName() + "\nPredajca: " + mPRESSURE.getVendor() + "\nVerzia: " + mPRESSURE.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY) != null){
+            // Success! There's a pressure sensor.
+            mPROXIMITY = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+            m18a.setVisibility(View.VISIBLE);
+            m18b.setVisibility(View.VISIBLE);
+
+            m18a.append("\nNázov: " + mPROXIMITY.getName() + "\nPredajca: " + mPROXIMITY.getVendor() + "\nVerzia: " + mPROXIMITY.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) != null){
+            // Success! There's a pressure sensor.
+            mRELATIVE_HUMIDITY = mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+            m19a.setVisibility(View.VISIBLE);
+            m19b.setVisibility(View.VISIBLE);
+
+            m19a.append("\nNázov: " + mRELATIVE_HUMIDITY.getName() + "\nPredajca: " + mRELATIVE_HUMIDITY.getVendor() + "\nVerzia: " + mRELATIVE_HUMIDITY.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) != null){
+            // Success! There's a pressure sensor.
+            mROTATION_VECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            m20a.setVisibility(View.VISIBLE);
+            m20b.setVisibility(View.VISIBLE);
+
+            m20a.append("\nNázov: " + mROTATION_VECTOR.getName() + "\nPredajca: " + mROTATION_VECTOR.getVendor() + "\nVerzia: " + mROTATION_VECTOR.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION) != null){
+            // Success! There's a pressure sensor.
+            mSIGNIFICANT_MOTION = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
+            m21a.setVisibility(View.VISIBLE);
+            m21b.setVisibility(View.VISIBLE);
+
+            m21a.append("\nNázov: " + mSIGNIFICANT_MOTION.getName() + "\nPredajca: " + mSIGNIFICANT_MOTION.getVendor() + "\nVerzia: " + mSIGNIFICANT_MOTION.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT) != null){
+            // Success! There's a pressure sensor.
+            mSTATIONARY_DETECT = mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT);
+            m22a.setVisibility(View.VISIBLE);
+            m22b.setVisibility(View.VISIBLE);
+
+            m22a.append("\nNázov: " + mSTATIONARY_DETECT.getName() + "\nPredajca: " + mSTATIONARY_DETECT.getVendor() + "\nVerzia: " + mSTATIONARY_DETECT.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null){
+            // Success! There's a pressure sensor.
+            mSTEP_COUNTER = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+            m23a.setVisibility(View.VISIBLE);
+            m23b.setVisibility(View.VISIBLE);
+
+            m23a.append("\nNázov: " + mSTEP_COUNTER.getName() + "\nPredajca: " + mSTEP_COUNTER.getVendor() + "\nVerzia: " + mSTEP_COUNTER.getVersion() + "\n");
+
+        }
+
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null){
+            // Success! There's a pressure sensor.
+            mSTEP_DETECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+            m24a.setVisibility(View.VISIBLE);
+            m24b.setVisibility(View.VISIBLE);
+
+            m24a.append("\nNázov: " + mSTEP_DETECTOR.getName() + "\nPredajca: " + mSTEP_DETECTOR.getVendor() + "\nVerzia: " + mSTEP_DETECTOR.getVersion() + "\n");
+
+        }
+
+    }
+
 
     private void initializeTextViews() {
         m1a=(TextView) findViewById(R.id.textViewM1a);

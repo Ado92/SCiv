@@ -40,17 +40,19 @@
         android:layout_centerHorizontal="true"
         android:theme="@style/Base.TextAppearance.AppCompat" />
 
+
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Senzor:"
         android:id="@+id/textViewM1a"
         android:layout_below="@+id/imageView"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -58,11 +60,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM1b"
         android:layout_below="@+id/textViewM1a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -70,11 +72,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM2a"
         android:layout_below="@+id/textViewM1b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -82,11 +84,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM2b"
         android:layout_below="@+id/textViewM2a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -94,11 +96,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM3a"
         android:layout_below="@+id/textViewM2b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -106,11 +108,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM3b"
         android:layout_below="@+id/textViewM3a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -118,11 +120,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM4a"
         android:layout_below="@+id/textViewM3b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -130,11 +132,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM4b"
         android:layout_below="@+id/textViewM4a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -142,11 +144,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM5a"
         android:layout_below="@+id/textViewM4b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -154,11 +156,12 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM5b"
         android:layout_below="@+id/textViewM5a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
+
 
 
     <TextView
@@ -167,11 +170,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM6a"
         android:layout_below="@+id/textViewM5b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -179,11 +182,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM6b"
         android:layout_below="@+id/textViewM6a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -191,11 +194,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM7a"
         android:layout_below="@+id/textViewM6b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -203,11 +206,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM7b"
         android:layout_below="@+id/textViewM7a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -215,11 +218,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM8a"
         android:layout_below="@+id/textViewM7b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -227,11 +230,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM8b"
         android:layout_below="@+id/textViewM8a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -239,11 +242,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM9a"
         android:layout_below="@+id/textViewM8b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -251,11 +254,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM9b"
         android:layout_below="@+id/textViewM9a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -263,11 +266,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM10a"
         android:layout_below="@+id/textViewM9b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -275,11 +278,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM10b"
         android:layout_below="@+id/textViewM10a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
 
 
@@ -289,11 +292,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM11a"
         android:layout_below="@+id/textViewM10b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -301,11 +304,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM11b"
         android:layout_below="@+id/textViewM11a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -313,11 +316,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM12a"
         android:layout_below="@+id/textViewM11b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -325,11 +328,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM12b"
         android:layout_below="@+id/textViewM12a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -337,11 +340,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM13a"
         android:layout_below="@+id/textViewM12b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -349,11 +352,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM13b"
         android:layout_below="@+id/textViewM13a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -361,11 +364,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM14a"
         android:layout_below="@+id/textViewM13b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -373,11 +376,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM14b"
         android:layout_below="@+id/textViewM14a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -385,11 +388,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM15a"
         android:layout_below="@+id/textViewM14b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -397,11 +400,12 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM15b"
         android:layout_below="@+id/textViewM15a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
+
 
 
     <TextView
@@ -410,11 +414,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM16a"
         android:layout_below="@+id/textViewM15b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -422,11 +426,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM16b"
         android:layout_below="@+id/textViewM16a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -434,11 +438,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM17a"
         android:layout_below="@+id/textViewM16b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -446,11 +450,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM17b"
         android:layout_below="@+id/textViewM17a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -458,11 +462,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM18a"
         android:layout_below="@+id/textViewM17b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -470,11 +474,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM18b"
         android:layout_below="@+id/textViewM18a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -482,11 +486,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM19a"
         android:layout_below="@+id/textViewM18b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -494,11 +498,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM19b"
         android:layout_below="@+id/textViewM19a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -506,11 +510,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM20a"
         android:layout_below="@+id/textViewM19b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -518,11 +522,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM20b"
         android:layout_below="@+id/textViewM20a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
 
 
@@ -532,11 +536,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM21a"
         android:layout_below="@+id/textViewM20b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -544,11 +548,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM21b"
         android:layout_below="@+id/textViewM21a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -556,11 +560,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM22a"
         android:layout_below="@+id/textViewM21b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -568,11 +572,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM22b"
         android:layout_below="@+id/textViewM22a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -580,11 +584,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM23a"
         android:layout_below="@+id/textViewM22b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -592,11 +596,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM23b"
         android:layout_below="@+id/textViewM23a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -604,11 +608,11 @@
         android:text="Senzor:"
         android:id="@+id/textViewM24a"
         android:layout_below="@+id/textViewM23b"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -616,11 +620,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textViewM24b"
         android:layout_below="@+id/textViewM24a"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
 
 
@@ -632,12 +636,12 @@
         android:layout_height="wrap_content"
         android:text="Senzory:"
         android:id="@+id/textView2"
-        android:layout_below="@+id/imageView"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/textViewM24b"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -645,11 +649,11 @@
         android:text="Hodnoty:"
         android:id="@+id/textView3"
         android:layout_below="@+id/textView2"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
 </RelativeLayout>
 </ScrollView>
