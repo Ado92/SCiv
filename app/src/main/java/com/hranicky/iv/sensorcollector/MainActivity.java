@@ -51,18 +51,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor mSTEP_COUNTER;
     private Sensor mSTEP_DETECTOR;
 
+    //TextView:
+    private TextView m1a=null,m2a=null,m3a=null,m4a=null,m5a=null,m6a=null,m7a=null,m8a=null,m9a=null,m10a=null,m11a=null,m12a=null,m13a=null,m14a=null,m15a=null,m16a=null,m17a=null,m18a=null,m19a=null,m20a=null,m21a=null,m22a=null,m23a=null,m24a=null;
+    private TextView m1b=null,m2b=null,m3b=null,m4b=null,m5b=null,m6b=null,m7b=null,m8b=null,m9b=null,m10b=null,m11b=null,m12b=null,m13b=null,m14b=null,m15b=null,m16b=null,m17b=null,m18b=null,m19b=null,m20b=null,m21b=null,m22b=null,m23b=null,m24b=null;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tv2 = (TextView) findViewById(R.id.textView3);
-        tv2.setVisibility(View.GONE);
-
         tv1 = (TextView) findViewById(R.id.textView2);
         tv1.setVisibility(View.GONE);
 
+        tv2 = (TextView) findViewById(R.id.textView3);
+        tv2.setVisibility(View.GONE);
+
+        tv1.setVisibility(View.INVISIBLE);
+        tv2.setVisibility(View.INVISIBLE);
+
+        initializeTextViews();
+
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mList= mSensorManager.getSensorList(Sensor.TYPE_ALL);
+
 /*
         mList= mSensorManager.getSensorList(Sensor.TYPE_ALL);
 
@@ -198,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -283,4 +296,58 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onPause();
         mSensorManager.unregisterListener(this);
     }
+
+    private void initializeTextViews() {
+        m1a=(TextView) findViewById(R.id.textViewM1a);
+        m2a=(TextView) findViewById(R.id.textViewM2a);
+        m3a=(TextView) findViewById(R.id.textViewM3a);
+        m4a=(TextView) findViewById(R.id.textViewM4a);
+        m5a=(TextView) findViewById(R.id.textViewM5a);
+        m6a=(TextView) findViewById(R.id.textViewM6a);
+        m7a=(TextView) findViewById(R.id.textViewM7a);
+        m8a=(TextView) findViewById(R.id.textViewM8a);
+        m9a=(TextView) findViewById(R.id.textViewM9a);
+        m10a=(TextView) findViewById(R.id.textViewM10a);
+        m11a=(TextView) findViewById(R.id.textViewM11a);
+        m12a=(TextView) findViewById(R.id.textViewM12a);
+        m13a=(TextView) findViewById(R.id.textViewM13a);
+        m14a=(TextView) findViewById(R.id.textViewM14a);
+        m15a=(TextView) findViewById(R.id.textViewM15a);
+        m16a=(TextView) findViewById(R.id.textViewM16a);
+        m17a=(TextView) findViewById(R.id.textViewM17a);
+        m18a=(TextView) findViewById(R.id.textViewM18a);
+        m19a=(TextView) findViewById(R.id.textViewM19a);
+        m20a=(TextView) findViewById(R.id.textViewM20a);
+        m21a=(TextView) findViewById(R.id.textViewM21a);
+        m22a=(TextView) findViewById(R.id.textViewM22a);
+        m23a=(TextView) findViewById(R.id.textViewM23a);
+        m24a=(TextView) findViewById(R.id.textViewM24a);
+
+        m1b=(TextView) findViewById(R.id.textViewM1b);
+        m2b=(TextView) findViewById(R.id.textViewM2b);
+        m3b=(TextView) findViewById(R.id.textViewM3b);
+        m4b=(TextView) findViewById(R.id.textViewM4b);
+        m5b=(TextView) findViewById(R.id.textViewM5b);
+        m6b=(TextView) findViewById(R.id.textViewM6b);
+        m7b=(TextView) findViewById(R.id.textViewM7b);
+        m8b=(TextView) findViewById(R.id.textViewM8b);
+        m9b=(TextView) findViewById(R.id.textViewM9b);
+        m10b=(TextView) findViewById(R.id.textViewM10b);
+        m11b=(TextView) findViewById(R.id.textViewM11b);
+        m12b=(TextView) findViewById(R.id.textViewM12b);
+        m13b=(TextView) findViewById(R.id.textViewM13b);
+        m14b=(TextView) findViewById(R.id.textViewM14b);
+        m15b=(TextView) findViewById(R.id.textViewM15b);
+        m16b=(TextView) findViewById(R.id.textViewM16b);
+        m17b=(TextView) findViewById(R.id.textViewM17b);
+        m18b=(TextView) findViewById(R.id.textViewM18b);
+        m19b=(TextView) findViewById(R.id.textViewM19b);
+        m20b=(TextView) findViewById(R.id.textViewM20b);
+        m21b=(TextView) findViewById(R.id.textViewM21b);
+        m22b=(TextView) findViewById(R.id.textViewM22b);
+        m23b=(TextView) findViewById(R.id.textViewM23b);
+        m24b=(TextView) findViewById(R.id.textViewM24b);
+
+    }
+
 }
