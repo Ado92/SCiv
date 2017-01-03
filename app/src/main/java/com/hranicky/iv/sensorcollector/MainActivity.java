@@ -141,6 +141,181 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tv2.setVisibility(View.VISIBLE);
         tv2.append("\n" + lux + "\n\n");
 */
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) == event.sensor){
+            m1b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m1b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) == event.sensor){
+            m2b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m2b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE) == event.sensor){
+            m3b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m3b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) == event.sensor){
+            m4b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m4b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) == event.sensor){
+            m5b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m5b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) == event.sensor){
+            m6b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m6b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) == event.sensor){
+            m7b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m7b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED) == event.sensor){
+            m8b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m8b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT) == event.sensor){
+            m9b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m9b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) == event.sensor){
+            m10b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m10b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) == event.sensor){
+            m11b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m11b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) == event.sensor){
+            m12b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m12b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) == event.sensor){
+            m13b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m13b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) == event.sensor){
+            m14b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m14b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT) == event.sensor){
+            m15b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m15b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF) == event.sensor){
+            m16b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m16b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE) == event.sensor){
+            m17b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m17b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY) == event.sensor){
+            m18b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m18b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) == event.sensor){
+            m19b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m19b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) == event.sensor){
+            m20b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m20b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION) == event.sensor){
+            m21b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m21b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT) == event.sensor){
+            m22b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m22b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) == event.sensor){
+            m23b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m23b,event.values[i]);
+            }
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) == event.sensor){
+            m24b.setText("Hodnoty:\n");
+            for(int i=0; i < event.values.length; i++){
+                writeValues("x",m24b,event.values[i]);
+            }
+        }
+
+
+
+
+    }
+
+    public void writeValues(String s, TextView tv, Float f) {
+        tv.append(s + ": " + f + "\n");
     }
 
     /**
