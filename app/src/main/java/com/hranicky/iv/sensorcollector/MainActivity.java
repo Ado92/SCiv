@@ -1,6 +1,8 @@
 package com.hranicky.iv.sensorcollector;
 
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,22 +13,28 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
 
     TextView tv1=null;
+    TextView tv2=null;
+
     private SensorManager mSensorManager;
+    private List<Sensor> mList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        tv2 = (TextView) findViewById(R.id.textView3);
+        tv2.setVisibility(View.GONE);
+
         tv1 = (TextView) findViewById(R.id.textView2);
         tv1.setVisibility(View.GONE);
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        List<Sensor> mList= mSensorManager.getSensorList(Sensor.TYPE_ALL);
+        mList= mSensorManager.getSensorList(Sensor.TYPE_ALL);
 
         for (int i = 1; i < mList.size(); i++) {
             tv1.setVisibility(View.VISIBLE);
@@ -54,5 +62,66 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Called when there is a new sensor event.  Note that "on changed"
+     * is somewhat of a misnomer, as this will also be called if we have a
+     * new reading from a sensor with the exact same sensor values (but a
+     * newer timestamp).
+     * <p/>
+     * <p>See {@link SensorManager SensorManager}
+     * for details on possible sensor types.
+     * <p>See also {@link SensorEvent SensorEvent}.
+     * <p/>
+     * <p><b>NOTE:</b> The application doesn't own the
+     * {@link SensorEvent event}
+     * object passed as a parameter and therefore cannot hold on to it.
+     * The object may be part of an internal pool and may be reused by
+     * the framework.
+     *
+     * @param event the {@link SensorEvent SensorEvent}.
+     */
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        // The light sensor returns a single value.
+        // Many sensors return 3 values, one for each axis.
+        float lux = event.values[0];
+        // Do something with this sensor value.
+        tv2.setVisibility(View.VISIBLE);
+        tv2.append("\n" + lux + "\n\n");
+
+    }
+
+    /**
+     * Called when the accuracy of the registered sensor has changed.  Unlike
+     * onSensorChanged(), this is only called when this accuracy value changes.
+     * <p/>
+     * <p>See the SENSOR_STATUS_* constants in
+     * {@link SensorManager SensorManager} for details.
+     *
+     * @param sensor
+     * @param accuracy The new accuracy of this sensor, one of
+     *                 {@code SensorManager.SENSOR_STATUS_*}
+     */
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Do something here if sensor accuracy changes.
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+
+        for (int i = 1; i < mList.size(); i++) {
+            mSensorManager.registerListener(this, mList.get(i), SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mSensorManager.unregisterListener(this);
     }
 }
