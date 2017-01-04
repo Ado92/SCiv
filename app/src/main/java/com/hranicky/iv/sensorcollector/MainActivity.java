@@ -461,6 +461,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
             // Success! There's a pressure sensor.
             mACCELEROMETER = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            setListener(mACCELEROMETER);
             m1a.setVisibility(View.VISIBLE);
             m1b.setVisibility(View.VISIBLE);
 
@@ -474,6 +475,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) != null){
             // Success! There's a pressure sensor.
             mAMBIENT_TEMPERATURE = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+            setListener(mAMBIENT_TEMPERATURE);
             m2a.setVisibility(View.VISIBLE);
             m2b.setVisibility(View.VISIBLE);
 
@@ -484,6 +486,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE) != null){
             // Success! There's a pressure sensor.
             mDEVICE_PRIVATE_BASE = mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE);
+            setListener(mDEVICE_PRIVATE_BASE);
             m3a.setVisibility(View.VISIBLE);
             m3b.setVisibility(View.VISIBLE);
 
@@ -494,6 +497,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) != null){
             // Success! There's a pressure sensor.
             mGAME_ROTATION_VECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
+            setListener(mGAME_ROTATION_VECTOR);
             m4a.setVisibility(View.VISIBLE);
             m4b.setVisibility(View.VISIBLE);
 
@@ -504,6 +508,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) != null){
             // Success! There's a pressure sensor.
             mGEOMAGNETIC_ROTATION_VECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR);
+            setListener(mGEOMAGNETIC_ROTATION_VECTOR);
             m5a.setVisibility(View.VISIBLE);
             m5b.setVisibility(View.VISIBLE);
 
@@ -514,6 +519,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null){
             // Success! There's a pressure sensor.
             mGRAVITY = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+            setListener(mGRAVITY);
             m6a.setVisibility(View.VISIBLE);
             m6b.setVisibility(View.VISIBLE);
 
@@ -524,6 +530,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null){
             // Success! There's a pressure sensor.
             mGYROSCOPE = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+            setListener(mGYROSCOPE);
             m7a.setVisibility(View.VISIBLE);
             m7b.setVisibility(View.VISIBLE);
 
@@ -534,6 +541,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED) != null){
             // Success! There's a pressure sensor.
             mGYROSCOPE_UNCALIBRATED = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
+            setListener(mGYROSCOPE_UNCALIBRATED);
             m8a.setVisibility(View.VISIBLE);
             m8b.setVisibility(View.VISIBLE);
 
@@ -544,6 +552,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT) != null){
             // Success! There's a pressure sensor.
             mHEART_BEAT = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT);
+            setListener(mHEART_BEAT);
             m9a.setVisibility(View.VISIBLE);
             m9b.setVisibility(View.VISIBLE);
 
@@ -554,6 +563,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) != null){
             // Success! There's a pressure sensor.
             mHEART_RATE = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
+            setListener(mHEART_RATE);
             m10a.setVisibility(View.VISIBLE);
             m10b.setVisibility(View.VISIBLE);
 
@@ -564,6 +574,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) != null){
             // Success! There's a pressure sensor.
             mLIGHT = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+            setListener(mLIGHT);
             m11a.setVisibility(View.VISIBLE);
             m11b.setVisibility(View.VISIBLE);
 
@@ -574,6 +585,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) != null){
             // Success! There's a pressure sensor.
             mLINEAR_ACCELERATION = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+            setListener(mLINEAR_ACCELERATION);
             m12a.setVisibility(View.VISIBLE);
             m12b.setVisibility(View.VISIBLE);
 
@@ -584,6 +596,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null){
             // Success! There's a pressure sensor.
             mMAGNETIC_FIELD = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+            setListener(mMAGNETIC_FIELD);
             m13a.setVisibility(View.VISIBLE);
             m13b.setVisibility(View.VISIBLE);
 
@@ -594,6 +607,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) != null){
             // Success! There's a pressure sensor.
             mMAGNETIC_FIELD_UNCALIBRATED = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED);
+            setListener(mMAGNETIC_FIELD_UNCALIBRATED);
             m14a.setVisibility(View.VISIBLE);
             m14b.setVisibility(View.VISIBLE);
 
@@ -604,6 +618,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT) != null){
             // Success! There's a pressure sensor.
             mMOTION_DETECT = mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT);
+            setListener(mMOTION_DETECT);
             m15a.setVisibility(View.VISIBLE);
             m15b.setVisibility(View.VISIBLE);
 
@@ -614,6 +629,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) != null){
             // Success! There's a pressure sensor.
             mORIENTATION = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+            setListener(mORIENTATION);
             m15aa.setVisibility(View.VISIBLE);
             m15bb.setVisibility(View.VISIBLE);
 
@@ -624,6 +640,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF) != null){
             // Success! There's a pressure sensor.
             mPOSE_6DOF = mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF);
+            setListener(mPOSE_6DOF);
             m16a.setVisibility(View.VISIBLE);
             m16b.setVisibility(View.VISIBLE);
 
@@ -634,6 +651,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE) != null){
             // Success! There's a pressure sensor.
             mPRESSURE = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+            setListener(mPRESSURE);
             m17a.setVisibility(View.VISIBLE);
             m17b.setVisibility(View.VISIBLE);
 
@@ -644,6 +662,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY) != null){
             // Success! There's a pressure sensor.
             mPROXIMITY = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+            setListener(mPROXIMITY);
             m18a.setVisibility(View.VISIBLE);
             m18b.setVisibility(View.VISIBLE);
 
@@ -654,6 +673,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) != null){
             // Success! There's a pressure sensor.
             mRELATIVE_HUMIDITY = mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+            setListener(mRELATIVE_HUMIDITY);
             m19a.setVisibility(View.VISIBLE);
             m19b.setVisibility(View.VISIBLE);
 
@@ -664,6 +684,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) != null){
             // Success! There's a pressure sensor.
             mROTATION_VECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+            setListener(mROTATION_VECTOR);
             m20a.setVisibility(View.VISIBLE);
             m20b.setVisibility(View.VISIBLE);
 
@@ -674,6 +695,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION) != null){
             // Success! There's a pressure sensor.
             mSIGNIFICANT_MOTION = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
+            setListener(mSIGNIFICANT_MOTION);
             m21a.setVisibility(View.VISIBLE);
             m21b.setVisibility(View.VISIBLE);
 
@@ -684,6 +706,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT) != null){
             // Success! There's a pressure sensor.
             mSTATIONARY_DETECT = mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT);
+            setListener(mSTATIONARY_DETECT);
             m22a.setVisibility(View.VISIBLE);
             m22b.setVisibility(View.VISIBLE);
 
@@ -694,6 +717,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null){
             // Success! There's a pressure sensor.
             mSTEP_COUNTER = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+            setListener(mSTEP_COUNTER);
             m23a.setVisibility(View.VISIBLE);
             m23b.setVisibility(View.VISIBLE);
 
@@ -704,6 +728,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null){
             // Success! There's a pressure sensor.
             mSTEP_DETECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+            setListener(mSTEP_DETECTOR);
             m24a.setVisibility(View.VISIBLE);
             m24b.setVisibility(View.VISIBLE);
 
@@ -769,4 +794,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    public void setListener(Sensor s){
+        mSensorManager.registerListener(this, s, SensorManager.SENSOR_DELAY_NORMAL);
+    }
 }
