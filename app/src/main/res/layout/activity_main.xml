@@ -406,6 +406,29 @@
         android:layout_alignParentStart="true"
         android:visibility="gone"/>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Senzor:"
+        android:id="@+id/textViewM15aa"
+        android:layout_below="@+id/textViewM15b"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hodnoty:"
+        android:id="@+id/textViewM15bb"
+        android:layout_below="@+id/textViewM15aa"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:visibility="gone"/>
 
 
     <TextView
@@ -413,7 +436,7 @@
         android:layout_height="wrap_content"
         android:text="Senzor:"
         android:id="@+id/textViewM16a"
-        android:layout_below="@+id/textViewM15b"
+        android:layout_below="@+id/textViewM15bb"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"

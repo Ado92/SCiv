@@ -50,10 +50,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor mSTATIONARY_DETECT;
     private Sensor mSTEP_COUNTER;
     private Sensor mSTEP_DETECTOR;
+    private Sensor mORIENTATION;
 
     //TextView:
-    private TextView m1a=null,m2a=null,m3a=null,m4a=null,m5a=null,m6a=null,m7a=null,m8a=null,m9a=null,m10a=null,m11a=null,m12a=null,m13a=null,m14a=null,m15a=null,m16a=null,m17a=null,m18a=null,m19a=null,m20a=null,m21a=null,m22a=null,m23a=null,m24a=null;
-    private TextView m1b=null,m2b=null,m3b=null,m4b=null,m5b=null,m6b=null,m7b=null,m8b=null,m9b=null,m10b=null,m11b=null,m12b=null,m13b=null,m14b=null,m15b=null,m16b=null,m17b=null,m18b=null,m19b=null,m20b=null,m21b=null,m22b=null,m23b=null,m24b=null;
+    private TextView m1a=null,m2a=null,m3a=null,m4a=null,m5a=null,m6a=null,m7a=null,m8a=null,m9a=null,m10a=null,m11a=null,m12a=null,m13a=null,m14a=null,m15a=null,m15aa=null,m16a=null,m17a=null,m18a=null,m19a=null,m20a=null,m21a=null,m22a=null,m23a=null,m24a=null;
+    private TextView m1b=null,m2b=null,m3b=null,m4b=null,m5b=null,m6b=null,m7b=null,m8b=null,m9b=null,m10b=null,m11b=null,m12b=null,m13b=null,m14b=null,m15b=null,m15bb=null,m16b=null,m17b=null,m18b=null,m19b=null,m20b=null,m21b=null,m22b=null,m23b=null,m24b=null;
+
+    //Temperature
+    private float temperature= (float) -500.0;
+
 
 
     @Override
@@ -142,80 +147,136 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tv2.append("\n" + lux + "\n\n");
 */
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) == event.sensor){
-            m1b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m1b,event.values[i]);
-            }
+            m1b.setText("Hodnoty (m/s^2):\n");
+            /*
+            When the device lies flat on a table and is pushed on its left side toward the right, the x acceleration value is positive.
+            When the device lies flat on a table, the acceleration value is +9.81, which correspond to the acceleration of the device (0 m/s^2) minus the force of gravity (-9.81 m/s^2).
+            When the device lies flat on a table and is pushed toward the sky with an acceleration of A m/s^2, the acceleration value is equal to A+9.81 which correspond to the acceleration of the device (+A m/s^2) minus the force of gravity (-9.81 m/s^2).
+            */
+            // alpha is calculated as t / (t + dT)
+            // with t, the low-pass filter's time-constant
+            // and dT, the event delivery rate
+            float alpha = (float) 0.8;
+            float[] gravity = new float[3];
+            float[] linear_acceleration = new float[3];
+
+            gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+            gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+            gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+
+            linear_acceleration[0] = event.values[0] - gravity[0];
+            linear_acceleration[1] = event.values[1] - gravity[1];
+            linear_acceleration[2] = event.values[2] - gravity[2];
+
+            writeValues("x",m1b,linear_acceleration[0]);
+            writeValues("y",m1b,linear_acceleration[1]);
+            writeValues("z",m1b,linear_acceleration[2]);
+
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) == event.sensor){
-            m2b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m2b,event.values[i]);
-            }
+            m2b.setText("Hodnota (°C):\n");
+            writeValues("Teplota okolia:",m2b,event.values[0]);
+            temperature = event.values[0];
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE) == event.sensor){
-            m3b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m3b,event.values[i]);
-            }
+            m3b.setText("Hodnota:\n");
+                writeValues("Device Private Base",m3b,event.values[0]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) == event.sensor){
-            m4b.setText("Hodnoty:\n");
+            m4b.setText("Hodnoty (bez ohľadu na geomagnetické pole Zeme):\n");
+            String value="";
             for(int i=0; i < event.values.length; i++){
-                writeValues("x",m4b,event.values[i]);
+                if(i==0) {
+                    value="x*sin(θ/2)";
+                }
+                else if(i==1) {
+                    value="y*sin(θ/2)";
+                }
+                else if(i==2) {
+                    value="z*sin(θ/2)";
+                }
+                else if(i==3) {
+                    value="cos(θ/2)";
+                }
+                else if(i==4) {
+                    value="Odhadovaná presnosť (rad, -1 ak nie je k disp.)";
+                }
+                writeValues(value,m4b,event.values[i]);
             }
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) == event.sensor){
-            m5b.setText("Hodnoty:\n");
+            m5b.setText("Hodnoty (bez použitia gyroskopu):\n");
+            String value="";
             for(int i=0; i < event.values.length; i++){
-                writeValues("x",m5b,event.values[i]);
+                if(i==0) {
+                    value="x*sin(θ/2)";
+                }
+                else if(i==1) {
+                    value="y*sin(θ/2)";
+                }
+                else if(i==2) {
+                    value="z*sin(θ/2)";
+                }
+                else if(i==3) {
+                    value="cos(θ/2)";
+                }
+                else if(i==4) {
+                    value="Odhadovaná presnosť (rad, -1 ak nie je k disp.)";
+                }
+                writeValues(value,m5b,event.values[i]);
             }
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) == event.sensor){
-            m6b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m6b,event.values[i]);
-            }
+            m6b.setText("Hodnoty (m/s^2):\n");
+            /*
+            The gravity vector components are reported in m/s^2 in the x, y and z fields of sensors_event_t.acceleration.
+            When the device is at rest, the output of the gravity sensor should be identical to that of the accelerometer. On Earth, the magnitude is around 9.8 m/s^2.
+             */
+
+            writeValues("x",m6b,event.values[0]);
+            writeValues("y",m6b,event.values[1]);
+            writeValues("z",m6b,event.values[2]);
+
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) == event.sensor){
-            m7b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m7b,event.values[i]);
-            }
+            m7b.setText("Hodnoty rýchlostí otáčania okolo os (rad/s):\n");
+            writeValues("x",m7b,event.values[0]);
+            writeValues("y",m7b,event.values[1]);
+            writeValues("z",m7b,event.values[2]);
+
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED) == event.sensor){
-            m8b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m8b,event.values[i]);
-            }
+            m8b.setText("Hodnoty rýchlostí otáčania okolo os bez driftovej kompenzácie (rad/s):\n");
+            writeValues("x",m8b,event.values[0]);
+            writeValues("y",m8b,event.values[1]);
+            writeValues("z",m8b,event.values[2]);
+            m8b.append("Odhadovaný drift okolo os (rad/s):\n");
+            writeValues("x",m8b,event.values[3]);
+            writeValues("y",m8b,event.values[4]);
+            writeValues("z",m8b,event.values[5]);
+
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT) == event.sensor){
-            m9b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m9b,event.values[i]);
-            }
+            m9b.setText("Hodnota (0.0 - pri veľkej nepresnosti, 1.0 pri veľkej presnosti):\n");
+            writeValues("Zaznamenanie úderu srdca",m9b,event.values[0]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) == event.sensor){
-            m10b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m10b,event.values[i]);
-            }
+            m10b.setText("Hodnota (bpm - počet úderov za min.):\n");
+            writeValues("Rýchlosť úderov srdca",m10b,event.values[0]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) == event.sensor){
-            m11b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m11b,event.values[i]);
-            }
+            m11b.setText("Hodnota (lux):\n");
+            writeValues("Okolité osvetlenie",m11b,event.values[0]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) == event.sensor){
@@ -223,90 +284,134 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             for(int i=0; i < event.values.length; i++){
                 writeValues("x",m12b,event.values[i]);
             }
+
+            m12b.setText("Hodnoty akceleračnej rýchlosti okolo os bez gravitácie (m/s^2):\n");
+            writeValues("x",m8b,event.values[0]);
+            writeValues("y",m8b,event.values[1]);
+            writeValues("z",m8b,event.values[2]);
+
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) == event.sensor){
-            m13b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m13b,event.values[i]);
-            }
+            m13b.setText("Hodnoty okolitého magnetického poľa v osiach (uT):\n");
+            writeValues("x",m13b,event.values[0]);
+            writeValues("y",m13b,event.values[1]);
+            writeValues("z",m13b,event.values[2]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) == event.sensor){
-            m14b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m14b,event.values[i]);
-            }
+            m14b.setText("Hodnoty okolitého magnetického poľa v osiach bez kalibrácie ťažkými kovmi (uT):\n");
+            writeValues("x",m14b,event.values[0]);
+            writeValues("y",m14b,event.values[1]);
+            writeValues("z",m14b,event.values[2]);
+            m14b.append("Ovplyvnenie os ťažkými kovmi (uT):\n");
+            writeValues("x",m14b,event.values[3]);
+            writeValues("y",m14b,event.values[4]);
+            writeValues("z",m14b,event.values[5]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT) == event.sensor){
-            m15b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m15b,event.values[i]);
-            }
+            m15b.setText("Hodnota (N/A, 1.0 pri pohnutí zariadením po dobu aspoň 5s):\n");
+            writeValues("Pohyb:",m15b,event.values[0]);
+        }
+        else
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) == event.sensor){
+            m15b.setText("Hodnoty (°):\n");
+            writeValues("Uhol zdvihu (uhol okolo osi x)",m15b,event.values[1]);
+            writeValues("Bočný náklon (uhol okolo osi y)",m15b,event.values[2]);
+            writeValues("Azimut (uhol okolo osi z)",m15b,event.values[0]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF) == event.sensor){
             m16b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m16b,event.values[i]);
-            }
+            writeValues("x*sin(θ/2)",m16b,event.values[0]);
+            writeValues("y*sin(θ/2)",m16b,event.values[1]);
+            writeValues("z*sin(θ/2)",m16b,event.values[2]);
+            writeValues("cos(θ/2)",m16b,event.values[3]);
+            m16b.append("Posun po osiach od ľubovoľného počiatku:\n");
+            writeValues("x",m16b,event.values[4]);
+            writeValues("y",m16b,event.values[5]);
+            writeValues("z",m16b,event.values[6]);
+            m16b.append("Delta rotácia kvaterniónu:\n");
+            writeValues("x*sin(θ/2)",m16b,event.values[7]);
+            writeValues("y*sin(θ/2)",m16b,event.values[8]);
+            writeValues("z*sin(θ/2)",m16b,event.values[9]);
+            writeValues("cos(θ/2)",m16b,event.values[10]);
+            m16b.append("Delta posun po osiach:\n");
+            writeValues("x",m16b,event.values[11]);
+            writeValues("y",m16b,event.values[12]);
+            writeValues("z",m16b,event.values[13]);
+            writeValues("Sekvenčné číslo",m16b,event.values[14]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE) == event.sensor){
-            m17b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m17b,event.values[i]);
-            }
+            m17b.setText("Hodnota (hPa):\n");
+            writeValues("Atmosferický tlak",m17b,event.values[0]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY) == event.sensor){
-            m18b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m18b,event.values[i]);
-            }
+            m18b.setText("Hodnota (cm):\n");
+            writeValues("Blízkosť",m18b,event.values[0]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) == event.sensor){
-            m19b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m19b,event.values[i]);
+            m19b.setText("Hodnoty (%):\n");
+            writeValues("Relatívna vlhkosť okolitého vzduchu",m19b,event.values[0]);
+            if(temperature > -499) {
+                float dewPoint;
+                float h = (float) (Math.log(event.values[0] / 100.0) + (17.62 * temperature) / (243.12 + temperature));
+                dewPoint = (float) (243.12 * h / (17.62 - h));
+                float absoluteHumidity;
+                absoluteHumidity = (float) (216.7 * (event.values[0] / 100.0 * 6.112 * Math.exp(17.62 * temperature / (243.12 + temperature)) / (273.15 + temperature)));
+                m19b.append("Teplota potrebná na zkondenzovanie vzduchu (°C):\n");
+                writeValues("Rosný bod", m19b, dewPoint);
+                m19a.append("Množstvo vodnej pary v určitom množstvo suchého vzduchu (g/m^3)");
+                writeValues("Absolútna vlhkosť", m19b, absoluteHumidity);
+
             }
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) == event.sensor){
-            m20b.setText("Hodnoty:\n");
+            m20b.setText("Hodnoty (vzhľadom na geomagnetické pole Zeme):\n");
+            String value="";
             for(int i=0; i < event.values.length; i++){
-                writeValues("x",m20b,event.values[i]);
+                if(i==0) {
+                    value="x*sin(θ/2)";
+                }
+                else if(i==1) {
+                    value="y*sin(θ/2)";
+                }
+                else if(i==2) {
+                    value="z*sin(θ/2)";
+                }
+                else if(i==3) {
+                    value="cos(θ/2)";
+                }
+                else if(i==4) {
+                    value="Odhadovaná presnosť (rad, -1 ak nie je k disp.)";
+                }
+                writeValues(value,m20b,event.values[i]);
             }
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION) == event.sensor){
-            m21b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m21b,event.values[i]);
-            }
+            m21b.setText("Bez hodnôt:\n");
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT) == event.sensor){
-            m22b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m22b,event.values[i]);
-            }
+            m22b.setText("Hodnota (N/A, 1.0 pri nepohnutí zariadením po dobu aspoň 5s):\n");
+            writeValues("Bez pohybu:",m22b,event.values[0]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) == event.sensor){
-            m23b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m23b,event.values[i]);
-            }
+            m23b.setText("Hodnota (kroky):\n");
+            writeValues("Počet krokov od posledného rebootu",m23b,event.values[0]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) == event.sensor){
-            m24b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m24b,event.values[i]);
-            }
+            m24b.setText("Hodnota (N/A, 1.0 pri kroku):\n");
+            writeValues("Krok",m24b,event.values[0]);
+
         }
 
 
@@ -506,6 +611,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) != null){
+            // Success! There's a pressure sensor.
+            mORIENTATION = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+            m15aa.setVisibility(View.VISIBLE);
+            m15bb.setVisibility(View.VISIBLE);
+
+            m15aa.append("\nNázov: " + mORIENTATION.getName() + "\nPredajca: " + mORIENTATION.getVendor() + "\nVerzia: " + mORIENTATION.getVersion() + "\n");
+
+        }
+
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF) != null){
             // Success! There's a pressure sensor.
             mPOSE_6DOF = mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF);
@@ -615,6 +730,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         m13a=(TextView) findViewById(R.id.textViewM13a);
         m14a=(TextView) findViewById(R.id.textViewM14a);
         m15a=(TextView) findViewById(R.id.textViewM15a);
+        m15aa=(TextView) findViewById(R.id.textViewM15aa);
         m16a=(TextView) findViewById(R.id.textViewM16a);
         m17a=(TextView) findViewById(R.id.textViewM17a);
         m18a=(TextView) findViewById(R.id.textViewM18a);
@@ -640,6 +756,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         m13b=(TextView) findViewById(R.id.textViewM13b);
         m14b=(TextView) findViewById(R.id.textViewM14b);
         m15b=(TextView) findViewById(R.id.textViewM15b);
+        m15bb=(TextView) findViewById(R.id.textViewM15bb);
         m16b=(TextView) findViewById(R.id.textViewM16b);
         m17b=(TextView) findViewById(R.id.textViewM17b);
         m18b=(TextView) findViewById(R.id.textViewM18b);
