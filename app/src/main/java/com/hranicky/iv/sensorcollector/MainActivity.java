@@ -40,17 +40,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor mMAGNETIC_FIELD_UNCALIBRATED;
     private Sensor mMOTION_DETECT;
 
+    private Sensor mORIENTATION;
     private Sensor mPOSE_6DOF;
     private Sensor mPRESSURE;
     private Sensor mPROXIMITY;
     private Sensor mRELATIVE_HUMIDITY;
-    private Sensor mROTATION_VECTOR;
 
+    private Sensor mROTATION_VECTOR;
     private Sensor mSIGNIFICANT_MOTION;
     private Sensor mSTATIONARY_DETECT;
     private Sensor mSTEP_COUNTER;
     private Sensor mSTEP_DETECTOR;
-    private Sensor mORIENTATION;
 
     //TextView:
     private TextView m1a=null,m2a=null,m3a=null,m4a=null,m5a=null,m6a=null,m7a=null,m8a=null,m9a=null,m10a=null,m11a=null,m12a=null,m13a=null,m14a=null,m15a=null,m15aa=null,m16a=null,m17a=null,m18a=null,m19a=null,m20a=null,m21a=null,m22a=null,m23a=null,m24a=null;
@@ -81,6 +81,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mList= mSensorManager.getSensorList(Sensor.TYPE_ALL);
 
         initializeSensors();
+        tv2.setVisibility(View.VISIBLE);
+        tv2.setText("Senzorov:" + mList.size() );
+        for (int i = 0; i < mList.size(); i++) {
+            tv2.append("\n" + mList.get(i).getName());
+        }
+
 /*
         mList= mSensorManager.getSensorList(Sensor.TYPE_ALL);
 
@@ -316,10 +322,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) == event.sensor){
-            m15b.setText("Hodnoty (°):\n");
-            writeValues("Uhol zdvihu (uhol okolo osi x)",m15b,event.values[1]);
-            writeValues("Bočný náklon (uhol okolo osi y)",m15b,event.values[2]);
-            writeValues("Azimut (uhol okolo osi z)",m15b,event.values[0]);
+            m15bb.setText("Hodnoty (°):\n");
+            writeValues("Uhol zdvihu (uhol okolo osi x)",m15bb,event.values[1]);
+            writeValues("Bočný náklon (uhol okolo osi y)",m15bb,event.values[2]);
+            writeValues("Azimut (uhol okolo osi z)",m15bb,event.values[0]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF) == event.sensor){
@@ -444,7 +450,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onResume();
 
 
-        for (int i = 1; i < mList.size(); i++) {
+        for (int i = 0; i < mList.size(); i++) {
             mSensorManager.registerListener(this, mList.get(i), SensorManager.SENSOR_DELAY_NORMAL);
         }
 

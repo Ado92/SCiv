@@ -64,6 +64,9 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"
+        android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -88,6 +91,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -112,6 +117,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -136,6 +143,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -160,6 +169,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
 
@@ -186,6 +197,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -210,6 +223,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -234,6 +249,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -258,6 +275,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -282,6 +301,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
 
@@ -308,6 +329,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -332,6 +355,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -356,6 +381,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -380,6 +407,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -404,6 +433,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -428,6 +459,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
 
@@ -453,6 +486,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -477,6 +512,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -501,6 +538,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -525,6 +564,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -549,6 +590,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
 
@@ -575,6 +618,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -599,6 +644,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -623,6 +670,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
     <TextView
@@ -647,6 +696,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorHodnoty"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
 
@@ -676,6 +727,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorSenzory"
+        android:layout_marginTop="0dp"
         android:visibility="gone"/>
 
 </RelativeLayout>
