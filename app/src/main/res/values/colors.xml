@@ -6,4 +6,5 @@
     <color name="colorHodnoty">#dc40d2ff</color>
     <color name="colorSenzory">#dc40d2ff</color>
     <color name="colorSensorCollector">#baacd373</color>
+    <color name="colorSC">#acd373</color>
 </resources>
