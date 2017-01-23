@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.List;
@@ -59,7 +61,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //Temperature
     private float temperature= (float) -500.0;
 
+    private boolean phase1=true;
+    private boolean phase2=true;
+    private boolean phase3=true;
 
+    private int actualCount = 0;
+    private int maxCount = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -124,6 +131,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return super.onOptionsItemSelected(item);
     }
 
+
+    float[] gravity = new float[3];
+    float[] linear_acceleration = new float[3];
+
     /**
      * Called when there is a new sensor event.  Note that "on changed"
      * is somewhat of a misnomer, as this will also be called if we have a
@@ -163,8 +174,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // with t, the low-pass filter's time-constant
             // and dT, the event delivery rate
             float alpha = (float) 0.8;
-            float[] gravity = new float[3];
-            float[] linear_acceleration = new float[3];
+
+            /*
+                float[] gravity = new float[3];
+                float[] linear_acceleration = new float[3];
+             */
 
             gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
             gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
@@ -177,6 +191,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             writeValues("x",m1b,linear_acceleration[0]);
             writeValues("y",m1b,linear_acceleration[1]);
             writeValues("z",m1b,linear_acceleration[2]);
+            m1b.append("Neupravené dáta zo senzoru (m/s^2):\n");
+            writeValues("x",m1b,event.values[0]);
+            writeValues("y",m1b,event.values[1]);
+            writeValues("z",m1b,event.values[2]);
 
         }
         else
@@ -402,6 +420,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION) == event.sensor){
             m21b.setText("Bez hodnôt:\n");
+            writeValues("(1):",m21b,event.values[0]);
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT) == event.sensor){
@@ -462,6 +481,53 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onPause();
         mSensorManager.unregisterListener(this);
     }
+
+    //Run all checked phases
+    public void startPhases(View view) {
+        maxCount = Integer.parseInt(( (EditText) findViewById(R.id.pocetVzoriek)).getText().toString());
+        actualCount = 0;
+    }
+
+    //CheckBoxes
+    public void onCheckboxClicked(View view) {
+        // Is the view now checked?
+        boolean checked = ((CheckBox) view).isChecked();
+
+        // Check which checkbox was clicked
+        switch(view.getId()) {
+            case R.id.phase1:
+                if (checked)
+                {
+                    phase1 = true;
+                }
+                else
+                {
+                    phase1 = false;
+                }
+                break;
+                case R.id.phase2:
+                if (checked)
+                {
+                    phase2 = true;
+                }
+                else
+                {
+                    phase2 = false;
+                }
+                break;
+            case R.id.phase3:
+                if (checked)
+                {
+                    phase3 = true;
+                }
+                else
+                {
+                    phase3 = false;
+                }
+                break;
+        }
+    }
+
 
     private void initializeSensors() {
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){

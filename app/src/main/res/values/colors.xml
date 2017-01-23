@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorHodnoty">#dc40d2ff</color>
     <color name="colorSenzory">#dc40d2ff</color>
+    <color name="colorSensorCollector">#baacd373</color>
 </resources>
