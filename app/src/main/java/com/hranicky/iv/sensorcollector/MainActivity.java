@@ -1,21 +1,29 @@
 package com.hranicky.iv.sensorcollector;
 
+import android.app.ProgressDialog;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.sql.Date;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity implements SensorEventListener, View.OnClickListener {
 
 
     TextView tv1=null;
@@ -68,6 +76,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private int actualCount = 0;
     private int maxCount = 10;
 
+    //Start Button
+    private Button start;
+
+    //CheckBoxes
+    private CheckBox ph1;
+    private CheckBox ph2;
+    private CheckBox ph3;
+
+    //EditText
+    private EditText et;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,11 +122,73 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 */
 
+        ph1 = (CheckBox) findViewById(R.id.phase1);
+        ph2 = (CheckBox) findViewById(R.id.phase2);
+        ph3 = (CheckBox) findViewById(R.id.phase3);
 
+        et = (EditText) findViewById(R.id.pocetVzoriek);
+
+        if (savedInstanceState != null) {
+            maxCount = savedInstanceState.getInt("maxCount");
+            actualCount = savedInstanceState.getInt("actualCount");
+            phase1 = savedInstanceState.getBoolean("phase1");
+            phase2 = savedInstanceState.getBoolean("phase2");
+            phase3 = savedInstanceState.getBoolean("phase3");
+
+            et.setText(maxCount);
+            ph1.setChecked(phase1);
+            ph2.setChecked(phase2);
+            ph3.setChecked(phase3);
+        }
+
+        start = (Button) findViewById(R.id.startButton);
+        start.setOnClickListener(this);
 
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        // Save UI state changes to the savedInstanceState.
+        // This bundle will be passed to onCreate if the process is
+        // killed and restarted.
+        savedInstanceState.putBoolean("MyBoolean", true);
+        savedInstanceState.putDouble("myDouble", 1.9);
+        savedInstanceState.putInt("MyInt", 1);
+        savedInstanceState.putString("MyString", "Welcome back to Android");
+        // etc.
 
+        savedInstanceState.putInt("maxCount",maxCount);
+        savedInstanceState.putInt("actualCount",actualCount);
+        savedInstanceState.putBoolean("phase1",phase1);
+        savedInstanceState.putBoolean("phase2",phase2);
+        savedInstanceState.putBoolean("phase3",phase3);
+
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        // Restore UI state from the savedInstanceState.
+        // This bundle has also been passed to onCreate.
+        boolean myBoolean = savedInstanceState.getBoolean("MyBoolean");
+        double myDouble = savedInstanceState.getDouble("myDouble");
+        int myInt = savedInstanceState.getInt("MyInt");
+        String myString = savedInstanceState.getString("MyString");
+
+
+        maxCount = savedInstanceState.getInt("maxCount");
+        actualCount = savedInstanceState.getInt("actualCount");
+        phase1 = savedInstanceState.getBoolean("phase1");
+        phase2 = savedInstanceState.getBoolean("phase2");
+        phase3 = savedInstanceState.getBoolean("phase3");
+
+        et.setText(maxCount);
+        ph1.setChecked(phase1);
+        ph2.setChecked(phase2);
+        ph3.setChecked(phase3);
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -483,9 +564,60 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     //Run all checked phases
-    public void startPhases(View view) {
+    public void startPhases() {
         maxCount = Integer.parseInt(( (EditText) findViewById(R.id.pocetVzoriek)).getText().toString());
         actualCount = 0;
+
+        start.setText("Stop\n("+(actualCount+1)+"/"+maxCount+")");
+        //Execute phases
+        while (actualCount < maxCount) {
+            actualCount++;
+            Calendar c = Calendar.getInstance();
+            int mYear = c.get(Calendar.YEAR);
+            int mMonth = c.get(Calendar.MONTH);
+            int mDay = c.get(Calendar.DAY_OF_MONTH);
+            Date date = new Date(mYear - 1900, mMonth, mDay);
+
+            final String name = DateFormat.format("dd.MM.yyyy", date).toString();
+            final String desg = String.valueOf(actualCount + 1);
+            final String sal = String.valueOf(maxCount);
+
+            class AddEmployee extends AsyncTask<Void, Void, String> {
+
+                ProgressDialog loading;
+
+                @Override
+                protected void onPreExecute() {
+                    super.onPreExecute();
+                    loading = ProgressDialog.show(MainActivity.this, "Adding...", "Wait...", false, false);
+                }
+
+                @Override
+                protected void onPostExecute(String s) {
+                    super.onPostExecute(s);
+                    loading.dismiss();
+                    Toast.makeText(MainActivity.this, s, Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                protected String doInBackground(Void... v) {
+                    HashMap<String, String> params = new HashMap<>();
+                    params.put(Config.KEY_EMP_NAME, name);
+                    params.put(Config.KEY_EMP_DESG, desg);
+                    params.put(Config.KEY_EMP_SAL, sal);
+
+                    RequestHandler rh = new RequestHandler();
+                    String res = rh.sendPostRequest(Config.URL_ADD, params);
+                    return res;
+                }
+            }
+
+            AddEmployee ae = new AddEmployee();
+            ae.execute();
+        }
+        //Koniec cyklu
+        start.setText("Štart");
+
     }
 
     //CheckBoxes
@@ -505,7 +637,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     phase1 = false;
                 }
                 break;
-                case R.id.phase2:
+            case R.id.phase2:
                 if (checked)
                 {
                     phase2 = true;
@@ -868,5 +1000,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     public void setListener(Sensor s){
         mSensorManager.registerListener(this, s, SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    /**
+     * Called when a view has been clicked.
+     *
+     * @param v The view that was clicked.
+     */
+    @Override
+    public void onClick(View v) {
+        if(v == start){
+            startPhases();
+        }
     }
 }
