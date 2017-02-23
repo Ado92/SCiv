@@ -1,11 +1,13 @@
 package com.hranicky.iv.sensorcollector;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -18,6 +20,20 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Date;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -135,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             phase2 = savedInstanceState.getBoolean("phase2");
             phase3 = savedInstanceState.getBoolean("phase3");
 
-            et.setText(maxCount);
+            et.setText(maxCount + "");
             ph1.setChecked(phase1);
             ph2.setChecked(phase2);
             ph3.setChecked(phase3);
@@ -143,6 +159,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         start = (Button) findViewById(R.id.startButton);
         start.setOnClickListener(this);
+
+
 
     }
 
@@ -183,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         phase2 = savedInstanceState.getBoolean("phase2");
         phase3 = savedInstanceState.getBoolean("phase3");
 
-        et.setText(maxCount);
+      //  et.setText(maxCount + "");
         ph1.setChecked(phase1);
         ph2.setChecked(phase2);
         ph3.setChecked(phase3);
@@ -566,57 +584,96 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //Run all checked phases
     public void startPhases() {
         maxCount = Integer.parseInt(( (EditText) findViewById(R.id.pocetVzoriek)).getText().toString());
-        actualCount = 0;
 
-        start.setText("Stop\n("+(actualCount+1)+"/"+maxCount+")");
         //Execute phases
-        while (actualCount < maxCount) {
-            actualCount++;
-            Calendar c = Calendar.getInstance();
-            int mYear = c.get(Calendar.YEAR);
-            int mMonth = c.get(Calendar.MONTH);
-            int mDay = c.get(Calendar.DAY_OF_MONTH);
-            Date date = new Date(mYear - 1900, mMonth, mDay);
+        int faza = 1;
+        for (faza = 1; faza <=3; faza++) {
+            if((faza == 1 && phase1 == true) || (faza == 2 && phase2 == true) ||(faza == 3 && phase3 == true)) {
+                actualCount = 0;
 
-            final String name = DateFormat.format("dd.MM.yyyy", date).toString();
-            final String desg = String.valueOf(actualCount + 1);
-            final String sal = String.valueOf(maxCount);
+                while (actualCount < maxCount) {
+                    start.setText("Stop\n(" + (actualCount + 1) + "/" + maxCount + ")");
+                    start.setTag(actualCount + 1);
+                    actualCount++;
+/*
+            final String url = "http://147.175.98.76:443/~xhranicky/mysql/CRUD/connect.php";
+            HttpClient client = new DefaultHttpClient();
 
-            class AddEmployee extends AsyncTask<Void, Void, String> {
-
-                ProgressDialog loading;
-
-                @Override
-                protected void onPreExecute() {
-                    super.onPreExecute();
-                    loading = ProgressDialog.show(MainActivity.this, "Adding...", "Wait...", false, false);
+            try {
+                if (android.os.Build.VERSION.SDK_INT > 9)
+                {
+                    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                    StrictMode.setThreadPolicy(policy);
                 }
 
-                @Override
-                protected void onPostExecute(String s) {
-                    super.onPostExecute(s);
-                    loading.dismiss();
-                    Toast.makeText(MainActivity.this, s, Toast.LENGTH_LONG).show();
-                }
+                client.execute(new HttpGet(url));
 
-                @Override
-                protected String doInBackground(Void... v) {
-                    HashMap<String, String> params = new HashMap<>();
-                    params.put(Config.KEY_EMP_NAME, name);
-                    params.put(Config.KEY_EMP_DESG, desg);
-                    params.put(Config.KEY_EMP_SAL, sal);
+  //              new updateData().execute(url);
 
-                    RequestHandler rh = new RequestHandler();
-                    String res = rh.sendPostRequest(Config.URL_ADD, params);
-                    return res;
-                }
+            System.out.println("\n\nAdding ........................ Finished\n\n");
+
+            } catch(IOException e) {
+                //do something here
+                System.out.println("\n\nNOOOOOO...............UNSUCCESSFUL\n\n");
+
             }
+*/
+                    Calendar c = Calendar.getInstance();
+                    int mYear = c.get(Calendar.YEAR);
+                    int mMonth = c.get(Calendar.MONTH);
+                    int mDay = c.get(Calendar.DAY_OF_MONTH);
+                    Date date = new Date(mYear - 1900, mMonth, mDay);
 
-            AddEmployee ae = new AddEmployee();
-            ae.execute();
+                    final String typ;
+                    if (faza == 1) typ = "json";
+                    else if (faza == 2) typ = "csv";
+                    else typ = "dump";
+                    final String suborov = String.valueOf(maxCount);
+                    final String velkost = "ivanka";
+                    final String cas = "sekundy";
+                    final String datum = DateFormat.format("dd.MM.yyyy", date).toString();
+
+
+                    class AddCollection extends AsyncTask<Void, Void, String> {
+
+                        ProgressDialog loading;
+
+                        @Override
+                        protected void onPreExecute() {
+                            super.onPreExecute();
+                            loading = ProgressDialog.show(MainActivity.this, "Adding...", "Wait...", false, false);
+                        }
+
+                        @Override
+                        protected void onPostExecute(String s) {
+                            super.onPostExecute(s);
+                            loading.dismiss();
+                            Toast.makeText(MainActivity.this, "Pridávam " + (suborov) + "", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        protected String doInBackground(Void... v) {
+                            HashMap<String, String> params = new HashMap<>();
+                            params.put(Config.KEY_TYP, typ);
+                            params.put(Config.KEY_SUBOROV, suborov);
+                            params.put(Config.KEY_VELKOST, velkost);
+                            params.put(Config.KEY_CAS, cas);
+                            params.put(Config.KEY_DATUM, datum);
+
+                            RequestHandler rh = new RequestHandler();
+                            String res = rh.sendPostRequest(Config.URL_ADD, params);
+                            return res;
+                        }
+                    }
+
+                    AddCollection ac = new AddCollection();
+                    ac.execute();
+                }
+                //Koniec cyklu
+            }
         }
-        //Koniec cyklu
         start.setText("Štart");
+        start.setTag(0);
 
     }
 
@@ -1011,6 +1068,37 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onClick(View v) {
         if(v == start){
             startPhases();
+        }
+
+    }
+
+
+    public class updateData extends AsyncTask<String, String, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+            HttpURLConnection conn = null;
+
+            try {
+                URL url;
+                url = new URL(params[0]);
+                conn = (HttpURLConnection) url.openConnection();
+                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    InputStream is = conn.getInputStream();
+                } else {
+                    InputStream err = conn.getErrorStream();
+                }
+                return "Done";
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+            return null;
         }
     }
 }

@@ -4,6 +4,8 @@ android {
     compileSdkVersion 24
     buildToolsVersion "25.0.1"
 
+    useLibrary 'org.apache.http.legacy'
+
     defaultConfig {
         applicationId "com.hranicky.iv.sensorcollector"
         minSdkVersion 19
@@ -23,4 +25,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:24.2.1'
+
+    compile 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
+
 }
