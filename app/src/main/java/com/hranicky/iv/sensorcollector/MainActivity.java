@@ -1,16 +1,24 @@
 package com.hranicky.iv.sensorcollector;
 
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.util.Base64;
+import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,24 +28,59 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+//import org.apache.http.entity.mime.HttpMultipartMode;
+//import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.util.EntityUtils;
+
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreProtocolPNames;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.channels.FileChannel;
 import java.sql.Date;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+//import it.sauronsoftware.ftp4j.FTPClient;
+//import it.sauronsoftware.ftp4j.FTPDataTransferListener;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, View.OnClickListener {
 
@@ -103,6 +146,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     //EditText
     private EditText et;
 
+    //SQLite Database
+    private SQLiteDatabase sc;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -156,6 +202,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             ph2.setChecked(phase2);
             ph3.setChecked(phase3);
         }
+
+
+        sc = openOrCreateDatabase("SenCol", Context.MODE_APPEND , null);
 
         start = (Button) findViewById(R.id.startButton);
         start.setOnClickListener(this);
@@ -233,6 +282,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     float[] gravity = new float[3];
     float[] linear_acceleration = new float[3];
+    float[] allSC = new float[78];
 
     /**
      * Called when there is a new sensor event.  Note that "on changed"
@@ -295,17 +345,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             writeValues("y",m1b,event.values[1]);
             writeValues("z",m1b,event.values[2]);
 
+            allSC[0] = linear_acceleration[0];
+            allSC[1] = linear_acceleration[1];
+            allSC[2] = linear_acceleration[2];
+
+            allSC[3] = event.values[0];
+            allSC[4] = event.values[1];
+            allSC[5] = event.values[2];
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) == event.sensor){
             m2b.setText("Hodnota (°C):\n");
             writeValues("Teplota okolia:",m2b,event.values[0]);
             temperature = event.values[0];
+            allSC[6] = event.values[0];
+
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE) == event.sensor){
             m3b.setText("Hodnota:\n");
-                writeValues("Device Private Base",m3b,event.values[0]);
+            writeValues("Device Private Base",m3b,event.values[0]);
+            allSC[7] = event.values[0];
+
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) == event.sensor){
@@ -314,18 +375,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             for(int i=0; i < event.values.length; i++){
                 if(i==0) {
                     value="x*sin(θ/2)";
+                    allSC[8] = event.values[0];
                 }
                 else if(i==1) {
                     value="y*sin(θ/2)";
+                    allSC[9] = event.values[1];
                 }
                 else if(i==2) {
                     value="z*sin(θ/2)";
+                    allSC[10] = event.values[2];
                 }
                 else if(i==3) {
                     value="cos(θ/2)";
+                    allSC[11] = event.values[3];
                 }
                 else if(i==4) {
                     value="Odhadovaná presnosť (rad, -1 ak nie je k disp.)";
+                    allSC[12] = event.values[4];
                 }
                 writeValues(value,m4b,event.values[i]);
             }
@@ -337,18 +403,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             for(int i=0; i < event.values.length; i++){
                 if(i==0) {
                     value="x*sin(θ/2)";
+                    allSC[13] = event.values[0];
                 }
                 else if(i==1) {
                     value="y*sin(θ/2)";
+                    allSC[14] = event.values[1];
                 }
                 else if(i==2) {
                     value="z*sin(θ/2)";
+                    allSC[15] = event.values[2];
                 }
                 else if(i==3) {
                     value="cos(θ/2)";
+                    allSC[16] = event.values[3];
                 }
                 else if(i==4) {
                     value="Odhadovaná presnosť (rad, -1 ak nie je k disp.)";
+                    allSC[17] = event.values[4];
                 }
                 writeValues(value,m5b,event.values[i]);
             }
@@ -365,6 +436,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             writeValues("y",m6b,event.values[1]);
             writeValues("z",m6b,event.values[2]);
 
+            allSC[18] = event.values[0];
+            allSC[19] = event.values[1];
+            allSC[20] = event.values[2];
+
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) == event.sensor){
@@ -373,45 +448,57 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             writeValues("y",m7b,event.values[1]);
             writeValues("z",m7b,event.values[2]);
 
+            allSC[21] = event.values[0];
+            allSC[22] = event.values[1];
+            allSC[23] = event.values[2];
+
         }
         else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED) == event.sensor){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED) == event.sensor) {
             m8b.setText("Hodnoty rýchlostí otáčania okolo os bez driftovej kompenzácie (rad/s):\n");
-            writeValues("x",m8b,event.values[0]);
-            writeValues("y",m8b,event.values[1]);
-            writeValues("z",m8b,event.values[2]);
+            writeValues("x", m8b, event.values[0]);
+            writeValues("y", m8b, event.values[1]);
+            writeValues("z", m8b, event.values[2]);
             m8b.append("Odhadovaný drift okolo os (rad/s):\n");
-            writeValues("x",m8b,event.values[3]);
-            writeValues("y",m8b,event.values[4]);
-            writeValues("z",m8b,event.values[5]);
+            writeValues("x", m8b, event.values[3]);
+            writeValues("y", m8b, event.values[4]);
+            writeValues("z", m8b, event.values[5]);
 
+            allSC[24] = event.values[0];
+            allSC[25] = event.values[1];
+            allSC[26] = event.values[2];
+            allSC[27] = event.values[3];
+            allSC[28] = event.values[4];
+            allSC[29] = event.values[5];
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT) == event.sensor){
             m9b.setText("Hodnota (0.0 - pri veľkej nepresnosti, 1.0 pri veľkej presnosti):\n");
             writeValues("Zaznamenanie úderu srdca",m9b,event.values[0]);
+            allSC[30] = event.values[0];
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) == event.sensor){
             m10b.setText("Hodnota (bpm - počet úderov za min.):\n");
             writeValues("Rýchlosť úderov srdca",m10b,event.values[0]);
+            allSC[31] = event.values[0];
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) == event.sensor){
             m11b.setText("Hodnota (lux):\n");
             writeValues("Okolité osvetlenie",m11b,event.values[0]);
+            allSC[32] = event.values[0];
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) == event.sensor){
-            m12b.setText("Hodnoty:\n");
-            for(int i=0; i < event.values.length; i++){
-                writeValues("x",m12b,event.values[i]);
-            }
-
             m12b.setText("Hodnoty akceleračnej rýchlosti okolo os bez gravitácie (m/s^2):\n");
-            writeValues("x",m8b,event.values[0]);
-            writeValues("y",m8b,event.values[1]);
-            writeValues("z",m8b,event.values[2]);
+            writeValues("x",m12b,event.values[0]);
+            writeValues("y",m12b,event.values[1]);
+            writeValues("z",m12b,event.values[2]);
+
+            allSC[33] = event.values[0];
+            allSC[34] = event.values[1];
+            allSC[35] = event.values[2];
 
         }
         else
@@ -420,6 +507,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             writeValues("x",m13b,event.values[0]);
             writeValues("y",m13b,event.values[1]);
             writeValues("z",m13b,event.values[2]);
+
+            allSC[36] = event.values[0];
+            allSC[37] = event.values[1];
+            allSC[38] = event.values[2];
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) == event.sensor){
@@ -431,11 +522,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             writeValues("x",m14b,event.values[3]);
             writeValues("y",m14b,event.values[4]);
             writeValues("z",m14b,event.values[5]);
+
+            allSC[39] = event.values[0];
+            allSC[40] = event.values[1];
+            allSC[41] = event.values[2];
+            allSC[42] = event.values[3];
+            allSC[43] = event.values[4];
+            allSC[44] = event.values[5];
+
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT) == event.sensor){
             m15b.setText("Hodnota (N/A, 1.0 pri pohnutí zariadením po dobu aspoň 5s):\n");
             writeValues("Pohyb:",m15b,event.values[0]);
+            allSC[45] = event.values[0];
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) == event.sensor){
@@ -443,6 +543,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             writeValues("Uhol zdvihu (uhol okolo osi x)",m15bb,event.values[1]);
             writeValues("Bočný náklon (uhol okolo osi y)",m15bb,event.values[2]);
             writeValues("Azimut (uhol okolo osi z)",m15bb,event.values[0]);
+
+            allSC[46] = event.values[1];
+            allSC[47] = event.values[2];
+            allSC[48] = event.values[0];
+
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF) == event.sensor){
@@ -465,21 +570,43 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             writeValues("y",m16b,event.values[12]);
             writeValues("z",m16b,event.values[13]);
             writeValues("Sekvenčné číslo",m16b,event.values[14]);
+
+            allSC[49] = event.values[0];
+            allSC[50] = event.values[1];
+            allSC[51] = event.values[2];
+            allSC[52] = event.values[3];
+            allSC[53] = event.values[4];
+
+            allSC[54] = event.values[5];
+            allSC[55] = event.values[6];
+            allSC[56] = event.values[7];
+            allSC[57] = event.values[8];
+            allSC[58] = event.values[9];
+
+            allSC[59] = event.values[10];
+            allSC[60] = event.values[11];
+            allSC[61] = event.values[12];
+            allSC[62] = event.values[13];
+            allSC[63] = event.values[14];
+
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE) == event.sensor){
             m17b.setText("Hodnota (hPa):\n");
             writeValues("Atmosferický tlak",m17b,event.values[0]);
+            allSC[64] = event.values[0];
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY) == event.sensor){
             m18b.setText("Hodnota (cm):\n");
             writeValues("Blízkosť",m18b,event.values[0]);
+            allSC[65] = event.values[0];
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) == event.sensor){
             m19b.setText("Hodnoty (%):\n");
             writeValues("Relatívna vlhkosť okolitého vzduchu",m19b,event.values[0]);
+            allSC[66] = event.values[0];
             if(temperature > -499) {
                 float dewPoint;
                 float h = (float) (Math.log(event.values[0] / 100.0) + (17.62 * temperature) / (243.12 + temperature));
@@ -491,6 +618,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 m19a.append("Množstvo vodnej pary v určitom množstvo suchého vzduchu (g/m^3)");
                 writeValues("Absolútna vlhkosť", m19b, absoluteHumidity);
 
+                allSC[67] = dewPoint;
+                allSC[68] = absoluteHumidity;
+
             }
         }
         else
@@ -500,18 +630,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             for(int i=0; i < event.values.length; i++){
                 if(i==0) {
                     value="x*sin(θ/2)";
+                    allSC[69] = event.values[0];
                 }
                 else if(i==1) {
                     value="y*sin(θ/2)";
+                    allSC[70] = event.values[1];
                 }
                 else if(i==2) {
                     value="z*sin(θ/2)";
+                    allSC[71] = event.values[2];
                 }
                 else if(i==3) {
                     value="cos(θ/2)";
+                    allSC[72] = event.values[3];
                 }
                 else if(i==4) {
                     value="Odhadovaná presnosť (rad, -1 ak nie je k disp.)";
+                    allSC[73] = event.values[4];
                 }
                 writeValues(value,m20b,event.values[i]);
             }
@@ -520,22 +655,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION) == event.sensor){
             m21b.setText("Bez hodnôt:\n");
             writeValues("(1):",m21b,event.values[0]);
+            allSC[74] = event.values[0];
+
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT) == event.sensor){
             m22b.setText("Hodnota (N/A, 1.0 pri nepohnutí zariadením po dobu aspoň 5s):\n");
             writeValues("Bez pohybu:",m22b,event.values[0]);
+            allSC[75] = event.values[0];
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) == event.sensor){
             m23b.setText("Hodnota (kroky):\n");
             writeValues("Počet krokov od posledného rebootu",m23b,event.values[0]);
+            allSC[76] = event.values[0];
         }
         else
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) == event.sensor){
             m24b.setText("Hodnota (N/A, 1.0 pri kroku):\n");
             writeValues("Krok",m24b,event.values[0]);
-
+            allSC[77] = event.values[0];
         }
 
 
@@ -585,95 +724,659 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void startPhases() {
         maxCount = Integer.parseInt(( (EditText) findViewById(R.id.pocetVzoriek)).getText().toString());
 
+        //Save data to SQLite (if phase is set to true
+        if(phase1 == true || phase2 == true || phase3 == true){
+            data2sql(maxCount);
+        }
+
         //Execute phases
         int faza = 1;
         for (faza = 1; faza <=3; faza++) {
             if((faza == 1 && phase1 == true) || (faza == 2 && phase2 == true) ||(faza == 3 && phase3 == true)) {
-                actualCount = 0;
 
-                while (actualCount < maxCount) {
-                    start.setText("Stop\n(" + (actualCount + 1) + "/" + maxCount + ")");
-                    start.setTag(actualCount + 1);
-                    actualCount++;
-/*
-            final String url = "http://147.175.98.76:443/~xhranicky/mysql/CRUD/connect.php";
-            HttpClient client = new DefaultHttpClient();
+                Calendar c = Calendar.getInstance();
+                int mYear = c.get(Calendar.YEAR);
+                int mMonth = c.get(Calendar.MONTH);
+                int mDay = c.get(Calendar.DAY_OF_MONTH);
+                Date date = new Date(mYear - 1900, mMonth, mDay);
 
-            try {
-                if (android.os.Build.VERSION.SDK_INT > 9)
-                {
-                    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                    StrictMode.setThreadPolicy(policy);
+                Pair<String, String> zaznamyZPrenosu;
+                String velkost = "ivanka";
+                String cas = "milisekundy";
+
+                final String typ;
+                if (faza == 1) {
+                    typ = "json";
+                    zaznamyZPrenosu = json(maxCount);
+                    cas = zaznamyZPrenosu.first;
+                    velkost = zaznamyZPrenosu.second;
                 }
-
-                client.execute(new HttpGet(url));
-
-  //              new updateData().execute(url);
-
-            System.out.println("\n\nAdding ........................ Finished\n\n");
-
-            } catch(IOException e) {
-                //do something here
-                System.out.println("\n\nNOOOOOO...............UNSUCCESSFUL\n\n");
-
-            }
-*/
-                    Calendar c = Calendar.getInstance();
-                    int mYear = c.get(Calendar.YEAR);
-                    int mMonth = c.get(Calendar.MONTH);
-                    int mDay = c.get(Calendar.DAY_OF_MONTH);
-                    Date date = new Date(mYear - 1900, mMonth, mDay);
-
-                    final String typ;
-                    if (faza == 1) typ = "json";
-                    else if (faza == 2) typ = "csv";
-                    else typ = "dump";
-                    final String suborov = String.valueOf(maxCount);
-                    final String velkost = "ivanka";
-                    final String cas = "sekundy";
-                    final String datum = DateFormat.format("dd.MM.yyyy", date).toString();
+                else if (faza == 2) {
+                    typ = "csv";
+                    zaznamyZPrenosu = csv(maxCount);
+                    cas = zaznamyZPrenosu.first;
+                    velkost = zaznamyZPrenosu.second;
+                }
+                else {
+                    typ = "dump";
+                    zaznamyZPrenosu = dump(maxCount);
+                    cas = zaznamyZPrenosu.first;
+                    velkost = zaznamyZPrenosu.second;
+                }
+                final String suborov = String.valueOf(maxCount);
+                final String datum = DateFormat.format("dd.MM.yyyy", date).toString();
 
 
-                    class AddCollection extends AsyncTask<Void, Void, String> {
+                final String finalVelkost = velkost;
+                final String finalCas = cas;
+                class AddCollection extends AsyncTask<Void, Void, String> {
 
-                        ProgressDialog loading;
+                    ProgressDialog loading;
 
-                        @Override
-                        protected void onPreExecute() {
-                            super.onPreExecute();
-                            loading = ProgressDialog.show(MainActivity.this, "Adding...", "Wait...", false, false);
-                        }
-
-                        @Override
-                        protected void onPostExecute(String s) {
-                            super.onPostExecute(s);
-                            loading.dismiss();
-                            Toast.makeText(MainActivity.this, "Pridávam " + (suborov) + "", Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        protected String doInBackground(Void... v) {
-                            HashMap<String, String> params = new HashMap<>();
-                            params.put(Config.KEY_TYP, typ);
-                            params.put(Config.KEY_SUBOROV, suborov);
-                            params.put(Config.KEY_VELKOST, velkost);
-                            params.put(Config.KEY_CAS, cas);
-                            params.put(Config.KEY_DATUM, datum);
-
-                            RequestHandler rh = new RequestHandler();
-                            String res = rh.sendPostRequest(Config.URL_ADD, params);
-                            return res;
-                        }
+                    @Override
+                    protected void onPreExecute() {
+                        super.onPreExecute();
+                        loading = ProgressDialog.show(MainActivity.this, "Adding...", "Wait...", false, false);
                     }
 
-                    AddCollection ac = new AddCollection();
-                    ac.execute();
+                    @Override
+                    protected void onPostExecute(String s) {
+                        super.onPostExecute(s);
+                        loading.dismiss();
+                        Toast.makeText(MainActivity.this, "Pridávam " + (suborov) + "", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    protected String doInBackground(Void... v) {
+                        HashMap<String, String> params = new HashMap<>();
+                        params.put(Config.KEY_TYP, typ);
+                        params.put(Config.KEY_SUBOROV, suborov);
+                        params.put(Config.KEY_VELKOST, finalVelkost);
+                        params.put(Config.KEY_CAS, finalCas);
+                        params.put(Config.KEY_DATUM, datum);
+
+                        RequestHandler rh = new RequestHandler();
+                        String res = rh.sendPostRequest(Config.URL_ADD, params);
+                        return res;
+                    }
                 }
-                //Koniec cyklu
+
+                AddCollection ac = new AddCollection();
+                ac.execute();
             }
         }
         start.setText("Štart");
         start.setTag(0);
+
+    }
+
+    public Pair<String, String> json (int max){
+        String casPrenosu = "";
+        String velkostSuboru = "";
+        long zaciatokPrenosu = 0;
+        long koniecPrenosu = 0;
+        JSONArray jsonArr = new JSONArray();
+        try{
+            for (int i = 1; i<=max; i++){
+                Cursor cursor = sc.rawQuery("SELECT * FROM 'scData' WHERE id = '" + i + "'",null);
+                cursor.moveToFirst();
+                JSONObject jsonOb = new JSONObject();
+                jsonOb.put("'datum'", cursor.getString(1));
+                jsonOb.put("'accelerometer'", cursor.getString(2));
+                jsonOb.put("'ambient_temperature'", cursor.getString(3));
+                jsonOb.put("'device_private_base'", cursor.getString(4));
+                jsonOb.put("'game_rotation_vector'", cursor.getString(5));
+                jsonOb.put("'geomagnetic_rotation_vector'", cursor.getString(6));
+                jsonOb.put("'gravity'", cursor.getString(7));
+                jsonOb.put("'gyroscope'", cursor.getString(8));
+                jsonOb.put("'gyroscope_uncalibrated'", cursor.getString(9));
+                jsonOb.put("'heart_beat'", cursor.getString(10));
+                jsonOb.put("'heart_rate'", cursor.getString(11));
+                jsonOb.put("'light'", cursor.getString(12));
+                jsonOb.put("'linear_acceleration'", cursor.getString(13));
+                jsonOb.put("'magnetic_field'", cursor.getString(14));
+                jsonOb.put("'magnetic_field_uncalibrated'", cursor.getString(15));
+                jsonOb.put("'motion_detect'", cursor.getString(16));
+                jsonOb.put("'orientation'", cursor.getString(17));
+                jsonOb.put("'pose_6dof'", cursor.getString(18));
+                jsonOb.put("'pressure'", cursor.getString(19));
+                jsonOb.put("'proximity'", cursor.getString(20));
+                jsonOb.put("'relative_humidity'", cursor.getString(21));
+                jsonOb.put("'rotation_vector'", cursor.getString(22));
+                jsonOb.put("'significant_motion'", cursor.getString(23));
+                jsonOb.put("'stationary_detect'", cursor.getString(24));
+                jsonOb.put("'step_counter'", cursor.getString(25));
+                jsonOb.put("'step_detector'", cursor.getString(26));
+                jsonArr.put(jsonOb);
+            }
+        }
+        catch (JSONException ex){
+            ex.printStackTrace();
+        }
+
+        String fileName = "sc.json";
+        //OutputStreamWriter jsonFile;
+
+        try{
+            File path = getFilesDir();
+/*
+            ContextWrapper cw = new ContextWrapper(this);
+            File path = cw.getDir("SCdir", Context.MODE_PRIVATE);
+            if (!path.exists()){
+                path.createNewFile();
+                path.mkdir();
+            }
+*/
+            File file = new File(path,fileName);
+           // jsonFile =  new OutputStreamWriter(file);
+            FileOutputStream stream = new FileOutputStream(file);
+            stream.write(jsonArr.toString().getBytes());
+            stream.close();
+
+
+          //  jsonFile.write(jsonArr.toString().getBytes());
+
+            System.out.println("*********************************************************");
+            System.out.println(path.toString());
+            System.out.println(jsonArr.toString());
+            System.out.println("*********************************************************");
+            String pathToOurFile = "/data/data/com.hranicky.iv.sensorcollector/files/sc.json";
+            zaciatokPrenosu = System.currentTimeMillis();
+            sendFile(pathToOurFile);
+            koniecPrenosu = System.currentTimeMillis();
+            casPrenosu = Objects.toString(koniecPrenosu - zaciatokPrenosu) + "ms";
+            velkostSuboru = Objects.toString(file.length()) + "B";
+            System.out.println("***************velkost suboru:" + velkostSuboru + " cas prenosu" + casPrenosu + "*******************");
+
+            //  jsonFile.flush();
+           // jsonFile.close();
+            //Transfer json file to server
+
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return new Pair<>(casPrenosu,velkostSuboru);
+    }
+
+
+    public Pair<String, String> csv (int max){
+        String casPrenosu = "";
+        String velkostSuboru = "";
+        long zaciatokPrenosu = 0;
+        long koniecPrenosu = 0;
+        String csvArr = "";
+        try{
+            csvArr = csvArr + "'datum';'accelerometer';'ambient_temperature';'device_private_base';'game_rotation_vector';'geomagnetic_rotation_vector';" +
+             "'gravity';'gyroscope';'gyroscope_uncalibrated';'heart_beat';'heart_rate';" +
+            "'light';'linear_acceleration';'magnetic_field';'magnetic_field_uncalibrated';'motion_detect';" +
+            "'orientation';'pose_6dof';'pressure';'proximity';'relative_humidity';" +
+            "'rotation_vector';'significant_motion';'stationary_detect';'step_counter';'step_detector'\n";
+            for (int i = 1; i<=max; i++){
+                Cursor cursor = sc.rawQuery("SELECT * FROM 'scData' WHERE id = '" + i + "'",null);
+                cursor.moveToFirst();
+                csvArr = csvArr + "\"" + cursor.getString(1) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(2) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(3) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(4) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(5) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(6) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(7) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(8) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(9) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(10) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(11) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(12) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(13) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(14) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(15) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(16) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(17) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(18) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(19) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(20) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(21) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(22) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(23) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(24) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(25) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(26) + "\"";
+                if (i<max)  csvArr = csvArr + "\n";
+            }
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+        }
+
+        String fileName = "sc.csv";
+
+        try{
+            File path = getFilesDir();
+            File file = new File(path,fileName);
+            FileOutputStream stream = new FileOutputStream(file);
+            stream.write(csvArr.getBytes());
+            stream.close();
+
+            System.out.println("*********************************************************");
+            System.out.println(path.toString());
+            System.out.println(csvArr.toString());
+            System.out.println("*********************************************************");
+            String pathToOurFile = "/data/data/com.hranicky.iv.sensorcollector/files/sc.csv";
+            zaciatokPrenosu = System.currentTimeMillis();
+            sendFile(pathToOurFile);
+            koniecPrenosu = System.currentTimeMillis();
+            casPrenosu = Objects.toString(koniecPrenosu - zaciatokPrenosu) + "ms";
+            velkostSuboru = Objects.toString(file.length()) + "B";
+            System.out.println("***************velkost suboru:" + velkostSuboru + " cas prenosu" + casPrenosu + "*******************");
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return new Pair<>(casPrenosu,velkostSuboru);
+    }
+
+    public Pair<String, String> dump (int max){
+        String casPrenosu = "";
+        String velkostSuboru = "";
+        long zaciatokPrenosu = 0;
+        long koniecPrenosu = 0;
+
+        String fileName = "sc.db";
+        int BUFFER = 2048;
+        byte[] buffer = new byte[2048];
+        try{
+
+            String currentDBPath = "/data/data/" + getPackageName() + "/databases/SenCol";
+            String backupDBPath = fileName;
+            File currentDB = new File(currentDBPath);
+            File backupDB = new File(getFilesDir(), backupDBPath);
+
+            if (currentDB.exists()) {
+                FileChannel src = new FileInputStream(currentDB).getChannel();
+                FileChannel dst = new FileOutputStream(backupDB).getChannel();
+                dst.transferFrom(src, 0, src.size());
+                src.close();
+                dst.close();
+            }
+            String pathToOurFile = "/data/data/com.hranicky.iv.sensorcollector/files/sc.db.zip";
+            File file = new File(pathToOurFile);
+        try{
+
+                FileOutputStream fos = new FileOutputStream(pathToOurFile);
+                ZipOutputStream zos = new ZipOutputStream(fos);
+                ZipEntry ze= new ZipEntry("sc.db");
+                zos.putNextEntry(ze);
+                FileInputStream in = new FileInputStream("/data/data/com.hranicky.iv.sensorcollector/files/sc.db");
+
+                int len;
+                while ((len = in.read(buffer)) > 0) {
+                    zos.write(buffer, 0, len);
+                }
+
+                in.close();
+                zos.closeEntry();
+
+                //remember close it
+                zos.close();
+
+                System.out.println("Done");
+
+            }catch(IOException ex){
+                ex.printStackTrace();
+            }
+
+            System.out.println("*********************************************************");
+           // System.out.println(path.toString());
+           // System.out.println(csvArr.toString());
+            System.out.println("*********************************************************");
+            zaciatokPrenosu = System.currentTimeMillis();
+            sendFile(pathToOurFile);
+            koniecPrenosu = System.currentTimeMillis();
+            casPrenosu = Objects.toString(koniecPrenosu - zaciatokPrenosu) + "ms";
+            velkostSuboru = Objects.toString(file.length()) + "B";
+            System.out.println("***************velkost suboru:" + velkostSuboru + " cas prenosu" + casPrenosu + "*******************");
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        return new Pair<>(casPrenosu,velkostSuboru);
+    }
+
+    public void sendFile(String pathToOurFile) {
+        String url2 = "http://147.175.98.76:443/~xhranicky/mysql/CRUD/Upload/handle_upload.php";
+
+        HttpURLConnection connection = null;
+        DataOutputStream outputStream = null;
+        DataInputStream inputStream = null;
+     /*       String urlServer = url2;
+            String lineEnd = "\r\n";
+            String twoHyphens = "--";
+            String boundary =  "*****";
+
+            int bytesRead, bytesAvailable, bufferSize;
+            byte[] buffer;
+            int maxBufferSize = 1*1024*1024;
+
+            try
+            {
+                FileInputStream fileInputStream = new FileInputStream(new File(pathToOurFile) );
+
+                URL url = new URL(urlServer);
+                connection = (HttpURLConnection) url.openConnection();
+
+            //    String usernamePassword = "xhranicky:andrej";
+             //   String encodedUsernamePassword = Base64.encodeToString(usernamePassword.getBytes(), Base64.DEFAULT);
+             //   connection.setRequestProperty ("Authorization", "Basic " + encodedUsernamePassword);
+                // Allow Inputs &amp; Outputs.
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+                connection.setUseCaches(false);
+
+                // Set HTTP method to POST.
+                connection.setRequestMethod("POST");
+
+                connection.setRequestProperty("Connection", "Keep-Alive");
+                connection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
+
+                outputStream = new DataOutputStream( connection.getOutputStream() );
+                outputStream.writeBytes(twoHyphens + boundary + lineEnd);
+                outputStream.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\";filename=\"" + pathToOurFile +"\"" + lineEnd);
+                outputStream.writeBytes(lineEnd);
+
+                bytesAvailable = fileInputStream.available();
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                buffer = new byte[bufferSize];
+
+                // Read file
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+                while (bytesRead > 0)
+                {
+                    outputStream.write(buffer, 0, bufferSize);
+                    bytesAvailable = fileInputStream.available();
+                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                }
+
+                outputStream.writeBytes(lineEnd);
+                outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+                // Responses from the server (code and message)
+                int serverResponseCode = connection.getResponseCode();
+                String serverResponseMessage = connection.getResponseMessage();
+
+                System.out.println("OOOOOOOOOOOOOOOOOOO" + serverResponseCode + serverResponseMessage);
+
+                fileInputStream.close();
+                outputStream.flush();
+                outputStream.close();
+            }
+            catch (Exception ex)
+            {
+                System.out.println("---------------------- ERROR *************************************************");
+                //Exception handling
+            }
+            */
+
+        try
+        {
+            HttpClient client = new DefaultHttpClient();
+            HttpPost post = new HttpPost(url2);
+
+
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+
+            MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+            entityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            entityBuilder.setBoundary("-------------" + System.currentTimeMillis());
+            //               entityBuilder.addTextBody("uploadedfile", userId);
+
+            if(pathToOurFile != null)
+            {
+    //            InputStream inputStream2;
+      //          inputStream2 = new FileInputStream(file);
+        //        InputStreamBody inputStreamBody = new InputStreamBody(new ByteArrayInputStream(IOUtils.toByteArray(inputStream2)), pathToOurFile);
+                // entityBuilder.addPart("uploadedfile", inputStreamBody);
+                //  entityBuilder.addBinaryBody("uploadedfile", file);
+                //   entityBuilder.addPart("uploadedfile", new FileBody(file));
+                entityBuilder.addPart("uploadedfile", new FileBody(new File(pathToOurFile)));
+            }
+
+            HttpEntity entity = entityBuilder.build();
+            post.setEntity(entity);
+            HttpResponse response = client.execute(post);
+            HttpEntity httpEntity = response.getEntity();
+            String result = EntityUtils.toString(httpEntity);
+            Log.v("result", result);
+
+            System.out.println("***********************-----------------**********************************");
+            System.out.println(response);
+            System.out.println("************************------------------*********************************");
+
+        }
+        catch(Exception e)
+        {
+            System.out.println("---------------------- ERROR *************************************************");
+
+            e.printStackTrace();
+        }
+
+            /*
+            try {
+                HttpClient httpclient = new DefaultHttpClient();
+
+                HttpPost httppost = new HttpPost(url2);
+
+                InputStreamEntity reqEntity = new InputStreamEntity(new FileInputStream(file), -1);
+                reqEntity.setContentType("binary/octet-stream");
+                reqEntity.setChunked(true); // Send in multiple parts if needed
+                httppost.setEntity(reqEntity);
+
+
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+
+                HttpResponse response = httpclient.execute(httppost);
+                //Do something with response...
+                System.out.println("***********************-----------------**********************************");
+                System.out.println(response);
+                System.out.println("************************------------------*********************************");
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("---------------------- ERROR *************************************************");
+            }
+*/
+
+            /*
+            try {
+                SimpleFTP ftp = new SimpleFTP();
+
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+
+
+                // Connect to an FTP server on port 21.
+                ftp.connect("/147.175.98.76:443/", 21, "xhranicky", "andrej");
+
+                // Set binary mode.
+                ftp.bin();
+
+                // Change to a new working directory on the FTP server.
+                ftp.cwd("/home/xhranicky/public_html/");
+
+                // Upload some files.
+            //    ftp.stor(new File("webcam.jpg"));
+            //    ftp.stor(new File("comicbot-latest.png"));
+                ftp.stor(file);
+
+                // You can also upload from an InputStream, e.g.
+            //    ftp.stor(new FileInputStream(new File("test.png")), "test.png");
+            //    ftp.stor(someSocket.getInputStream(), "blah.dat");
+
+                // Quit from the FTP server.
+                ftp.disconnect();
+            }
+            catch (IOException e) {
+                // Jibble
+                System.out.println("---------------------- ERROR *************************************************");
+            }
+
+ */
+/*
+            FTPClient client = new FTPClient();
+
+            try {
+
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+
+                client.connect("147.175.98.76",443);
+                client.login("xhranicky", "andrej");
+                client.setType(FTPClient.TYPE_BINARY);
+                //client.changeDirectory("/upload/");
+
+                client.upload(file, new MyTransferListener());
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    client.disconnect(true);
+                } catch (Exception e2) {
+                    e2.printStackTrace();
+                }
+            }
+*/
+
+/*
+            System.out.println("***********************-----------------**********************************");
+            System.out.println(response);
+            System.out.println("************************------------------*********************************");
+*/
+    }
+
+    /*******  Used to file upload and show progress  **********/
+/*    public class MyTransferListener implements FTPDataTransferListener {
+
+        public void started() {
+            Toast.makeText(getBaseContext(), " Upload Started ...", Toast.LENGTH_SHORT).show();
+            //System.out.println(" Upload Started ...");
+        }
+
+        public void transferred(int length) {
+
+            // Yet other length bytes has been transferred since the last time this
+            // method was called
+            Toast.makeText(getBaseContext(), " transferred ..." + length, Toast.LENGTH_SHORT).show();
+            //System.out.println(" transferred ..." + length);
+        }
+
+        public void completed() {
+            Toast.makeText(getBaseContext(), " completed ...", Toast.LENGTH_SHORT).show();
+            //System.out.println(" completed ..." );
+        }
+
+        public void aborted() {
+
+            Toast.makeText(getBaseContext()," transfer aborted , please try again...", Toast.LENGTH_SHORT).show();
+            //System.out.println(" aborted ..." );
+        }
+
+        public void failed() {
+            // Transfer failed
+            System.out.println(" failed ..." );
+        }
+
+    }
+*/
+
+    public void data2sql (int max){
+        sc.execSQL("DROP TABLE IF EXISTS 'scData'");
+        sc.execSQL("CREATE TABLE 'scData' ('id' int(11) NOT NULL," +
+                "'datum' varchar(45) NOT NULL," +
+                "'accelerometer' varchar," +
+                "'ambient_temperature' varchar," +
+                "'device_private_base' varchar," +
+                "'game_rotation_vector' varchar," +
+                "'geomagnetic_rotation_vector' varchar," +
+                "'gravity' varchar," +
+                "'gyroscope' varchar," +
+                "'gyroscope_uncalibrated' varchar," +
+                "'heart_beat' varchar," +
+                "'heart_rate' varchar," +
+                "'light' varchar," +
+                "'linear_acceleration' varchar," +
+                "'magnetic_field' varchar," +
+                "'magnetic_field_uncalibrated' varchar," +
+                "'motion_detect' varchar," +
+                "'orientation' varchar," +
+                "'pose_6dof' varchar," +
+                "'pressure' varchar," +
+                "'proximity' varchar," +
+                "'relative_humidity' varchar," +
+                "'rotation_vector' varchar," +
+                "'significant_motion' varchar," +
+                "'stationary_detect' varchar," +
+                "'step_counter' varchar," +
+                "'step_detector' varchar," +
+                "PRIMARY KEY ('id'));");
+
+        int actual = 0;
+
+        while (actual < max) {
+            start.setText("Stop\n(" + (actual + 1) + "/" + max + ")");
+            start.setTag(actual + 1);
+            actual++;
+
+            Calendar c = Calendar.getInstance();
+            int mYear = c.get(Calendar.YEAR);
+            int mMonth = c.get(Calendar.MONTH);
+            int mDay = c.get(Calendar.DAY_OF_MONTH);
+            Date date = new Date(mYear - 1900, mMonth, mDay);
+            String datum = DateFormat.format("dd.MM.yyyy", date).toString();
+
+            sc.execSQL("INSERT INTO 'scData' VALUES(" + actual + "," +
+                    "'" + datum + "'," +
+                    "'" + allSC[0] + ";" + allSC[1] + ";" + allSC[2] + ";" + allSC[3] + ";" + allSC[4] + ";" + allSC[5] + "'," +
+                    "'" + allSC[6] + "'," +
+                    "'" + allSC[7] + "'," +
+                    "'" + allSC[8] + ";" + allSC[9] + ";" + allSC[10] + ";" + allSC[11] + ";" + allSC[12] + "'," +
+                    "'" + allSC[13] + ";" + allSC[14] + ";" + allSC[15] + ";" + allSC[16] + ";" + allSC[17] + "'," +
+                    "'" + allSC[18] + ";" + allSC[19] + ";" + allSC[20] + "'," +
+                    "'" + allSC[21] + ";" + allSC[22] + ";" + allSC[23] + "'," +
+                    "'" + allSC[24] + ";" + allSC[25] + ";" + allSC[26] + ";" + allSC[27] + ";" + allSC[28] + ";" + allSC[29] + "'," +
+                    "'" + allSC[30] + "'," +
+                    "'" + allSC[31] + "'," +
+                    "'" + allSC[32] + "'," +
+                    "'" + allSC[33] + ";" + allSC[34] + ";" + allSC[35] + "'," +
+                    "'" + allSC[36] + ";" + allSC[37] + ";" + allSC[38] + "'," +
+                    "'" + allSC[39] + ";" + allSC[40] + ";" + allSC[41] + ";" + allSC[42] + ";" + allSC[43] + ";" + allSC[44] + "'," +
+                    "'" + allSC[45] + "'," +
+                    "'" + allSC[46] + ";" + allSC[47] + ";" + allSC[48] + "'," +
+                    "'" + allSC[49] + ";" + allSC[50] + ";" + allSC[51] + ";" + allSC[52] + ";" + allSC[53] + ";" + allSC[54] + ";" + allSC[55] + ";" + allSC[56] + ";" + allSC[57] + ";" + allSC[58] + ";" + allSC[59] + ";" + allSC[60] + ";" + allSC[61] + ";" + allSC[62] + ";" + allSC[63] + "'," +
+                    "'" + allSC[64] + "'," +
+                    "'" + allSC[65] + "'," +
+                    "'" + allSC[66] + ";" + allSC[67] + ";" + allSC[68] + "'," +
+                    "'" + allSC[69] + ";" + allSC[70] + ";" + allSC[71] + ";" + allSC[72] + ";" + allSC[73] + "'," +
+                    "'" + allSC[74] + "'," +
+                    "'" + allSC[75] + "'," +
+                    "'" + allSC[76] + "'," +
+                    "'" + allSC[77] + "');");
+        }
 
     }
 
@@ -1070,35 +1773,5 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             startPhases();
         }
 
-    }
-
-
-    public class updateData extends AsyncTask<String, String, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            HttpURLConnection conn = null;
-
-            try {
-                URL url;
-                url = new URL(params[0]);
-                conn = (HttpURLConnection) url.openConnection();
-                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    InputStream is = conn.getInputStream();
-                } else {
-                    InputStream err = conn.getErrorStream();
-                }
-                return "Done";
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
-                }
-            }
-            return null;
-        }
     }
 }
