@@ -1,18 +1,24 @@
 package com.hranicky.iv.sensorcollector;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.StrictMode;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -85,8 +91,8 @@ import java.util.zip.ZipOutputStream;
 public class MainActivity extends AppCompatActivity implements SensorEventListener, View.OnClickListener {
 
 
-    TextView tv1=null;
-    TextView tv2=null;
+    TextView tv1 = null;
+    TextView tv2 = null;
 
     private SensorManager mSensorManager;
     private List<Sensor> mList;
@@ -121,16 +127,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor mSTEP_COUNTER;
     private Sensor mSTEP_DETECTOR;
 
+    private LocationManager mGPS;
+    private String GPSData = "null;null;null;null;null";
+
     //TextView:
-    private TextView m1a=null,m2a=null,m3a=null,m4a=null,m5a=null,m6a=null,m7a=null,m8a=null,m9a=null,m10a=null,m11a=null,m12a=null,m13a=null,m14a=null,m15a=null,m15aa=null,m16a=null,m17a=null,m18a=null,m19a=null,m20a=null,m21a=null,m22a=null,m23a=null,m24a=null;
-    private TextView m1b=null,m2b=null,m3b=null,m4b=null,m5b=null,m6b=null,m7b=null,m8b=null,m9b=null,m10b=null,m11b=null,m12b=null,m13b=null,m14b=null,m15b=null,m15bb=null,m16b=null,m17b=null,m18b=null,m19b=null,m20b=null,m21b=null,m22b=null,m23b=null,m24b=null;
+    private TextView m1a = null, m2a = null, m3a = null, m4a = null, m5a = null, m6a = null, m7a = null, m8a = null, m9a = null, m10a = null, m11a = null, m12a = null, m13a = null, m14a = null, m15a = null, m15aa = null, m16a = null, m17a = null, m18a = null, m19a = null, m20a = null, m21a = null, m22a = null, m23a = null, m24a = null, m25a = null;
+    private TextView m1b = null, m2b = null, m3b = null, m4b = null, m5b = null, m6b = null, m7b = null, m8b = null, m9b = null, m10b = null, m11b = null, m12b = null, m13b = null, m14b = null, m15b = null, m15bb = null, m16b = null, m17b = null, m18b = null, m19b = null, m20b = null, m21b = null, m22b = null, m23b = null, m24b = null, m25b = null;
 
     //Temperature
-    private float temperature= (float) -500.0;
+    private float temperature = (float) -500.0;
 
-    private boolean phase1=true;
-    private boolean phase2=true;
-    private boolean phase3=true;
+    private boolean phase1 = true;
+    private boolean phase2 = true;
+    private boolean phase3 = true;
 
     private int actualCount = 0;
     private int maxCount = 10;
@@ -165,12 +174,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 */
         initializeTextViews();
 
+
+        //GPS
+        // Acquire a reference to the system Location Manager
+        mGPS = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        mList= mSensorManager.getSensorList(Sensor.TYPE_ALL);
+        mList = mSensorManager.getSensorList(Sensor.TYPE_ALL);
 
         initializeSensors();
         tv2.setVisibility(View.VISIBLE);
-        tv2.setText("Senzorov:" + mList.size() );
+        tv2.setText("Senzorov:" + mList.size());
         for (int i = 0; i < mList.size(); i++) {
             tv2.append("\n" + mList.get(i).getName());
         }
@@ -204,11 +218,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
 
-        sc = openOrCreateDatabase("SenCol", Context.MODE_APPEND , null);
+        sc = openOrCreateDatabase("SenCol", Context.MODE_APPEND, null);
 
         start = (Button) findViewById(R.id.startButton);
         start.setOnClickListener(this);
-
 
 
     }
@@ -225,11 +238,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         savedInstanceState.putString("MyString", "Welcome back to Android");
         // etc.
 
-        savedInstanceState.putInt("maxCount",maxCount);
-        savedInstanceState.putInt("actualCount",actualCount);
-        savedInstanceState.putBoolean("phase1",phase1);
-        savedInstanceState.putBoolean("phase2",phase2);
-        savedInstanceState.putBoolean("phase3",phase3);
+        savedInstanceState.putInt("maxCount", maxCount);
+        savedInstanceState.putInt("actualCount", actualCount);
+        savedInstanceState.putBoolean("phase1", phase1);
+        savedInstanceState.putBoolean("phase2", phase2);
+        savedInstanceState.putBoolean("phase3", phase3);
 
     }
 
@@ -250,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         phase2 = savedInstanceState.getBoolean("phase2");
         phase3 = savedInstanceState.getBoolean("phase3");
 
-      //  et.setText(maxCount + "");
+        //  et.setText(maxCount + "");
         ph1.setChecked(phase1);
         ph2.setChecked(phase2);
         ph3.setChecked(phase3);
@@ -312,7 +325,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tv2.setVisibility(View.VISIBLE);
         tv2.append("\n" + lux + "\n\n");
 */
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) == event.sensor){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) == event.sensor) {
             m1b.setText("Hodnoty (m/s^2):\n");
             /*
             When the device lies flat on a table and is pushed on its left side toward the right, the x acceleration value is positive.
@@ -337,13 +350,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             linear_acceleration[1] = event.values[1] - gravity[1];
             linear_acceleration[2] = event.values[2] - gravity[2];
 
-            writeValues("x",m1b,linear_acceleration[0]);
-            writeValues("y",m1b,linear_acceleration[1]);
-            writeValues("z",m1b,linear_acceleration[2]);
+            writeValues("x", m1b, linear_acceleration[0]);
+            writeValues("y", m1b, linear_acceleration[1]);
+            writeValues("z", m1b, linear_acceleration[2]);
             m1b.append("Neupravené dáta zo senzoru (m/s^2):\n");
-            writeValues("x",m1b,event.values[0]);
-            writeValues("y",m1b,event.values[1]);
-            writeValues("z",m1b,event.values[2]);
+            writeValues("x", m1b, event.values[0]);
+            writeValues("y", m1b, event.values[1]);
+            writeValues("z", m1b, event.values[2]);
 
             allSC[0] = linear_acceleration[0];
             allSC[1] = linear_acceleration[1];
@@ -352,109 +365,87 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             allSC[3] = event.values[0];
             allSC[4] = event.values[1];
             allSC[5] = event.values[2];
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) == event.sensor) {
             m2b.setText("Hodnota (°C):\n");
-            writeValues("Teplota okolia:",m2b,event.values[0]);
+            writeValues("Teplota okolia:", m2b, event.values[0]);
             temperature = event.values[0];
             allSC[6] = event.values[0];
 
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE) == event.sensor) {
             m3b.setText("Hodnota:\n");
-            writeValues("Device Private Base",m3b,event.values[0]);
+            writeValues("Device Private Base", m3b, event.values[0]);
             allSC[7] = event.values[0];
 
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) == event.sensor) {
             m4b.setText("Hodnoty (bez ohľadu na geomagnetické pole Zeme):\n");
-            String value="";
-            for(int i=0; i < event.values.length; i++){
-                if(i==0) {
-                    value="x*sin(θ/2)";
+            String value = "";
+            for (int i = 0; i < event.values.length; i++) {
+                if (i == 0) {
+                    value = "x*sin(θ/2)";
                     allSC[8] = event.values[0];
-                }
-                else if(i==1) {
-                    value="y*sin(θ/2)";
+                } else if (i == 1) {
+                    value = "y*sin(θ/2)";
                     allSC[9] = event.values[1];
-                }
-                else if(i==2) {
-                    value="z*sin(θ/2)";
+                } else if (i == 2) {
+                    value = "z*sin(θ/2)";
                     allSC[10] = event.values[2];
-                }
-                else if(i==3) {
-                    value="cos(θ/2)";
+                } else if (i == 3) {
+                    value = "cos(θ/2)";
                     allSC[11] = event.values[3];
-                }
-                else if(i==4) {
-                    value="Odhadovaná presnosť (rad, -1 ak nie je k disp.)";
+                } else if (i == 4) {
+                    value = "Odhadovaná presnosť (rad, -1 ak nie je k disp.)";
                     allSC[12] = event.values[4];
                 }
-                writeValues(value,m4b,event.values[i]);
+                writeValues(value, m4b, event.values[i]);
             }
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) == event.sensor) {
             m5b.setText("Hodnoty (bez použitia gyroskopu):\n");
-            String value="";
-            for(int i=0; i < event.values.length; i++){
-                if(i==0) {
-                    value="x*sin(θ/2)";
+            String value = "";
+            for (int i = 0; i < event.values.length; i++) {
+                if (i == 0) {
+                    value = "x*sin(θ/2)";
                     allSC[13] = event.values[0];
-                }
-                else if(i==1) {
-                    value="y*sin(θ/2)";
+                } else if (i == 1) {
+                    value = "y*sin(θ/2)";
                     allSC[14] = event.values[1];
-                }
-                else if(i==2) {
-                    value="z*sin(θ/2)";
+                } else if (i == 2) {
+                    value = "z*sin(θ/2)";
                     allSC[15] = event.values[2];
-                }
-                else if(i==3) {
-                    value="cos(θ/2)";
+                } else if (i == 3) {
+                    value = "cos(θ/2)";
                     allSC[16] = event.values[3];
-                }
-                else if(i==4) {
-                    value="Odhadovaná presnosť (rad, -1 ak nie je k disp.)";
+                } else if (i == 4) {
+                    value = "Odhadovaná presnosť (rad, -1 ak nie je k disp.)";
                     allSC[17] = event.values[4];
                 }
-                writeValues(value,m5b,event.values[i]);
+                writeValues(value, m5b, event.values[i]);
             }
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) == event.sensor) {
             m6b.setText("Hodnoty (m/s^2):\n");
             /*
             The gravity vector components are reported in m/s^2 in the x, y and z fields of sensors_event_t.acceleration.
             When the device is at rest, the output of the gravity sensor should be identical to that of the accelerometer. On Earth, the magnitude is around 9.8 m/s^2.
              */
 
-            writeValues("x",m6b,event.values[0]);
-            writeValues("y",m6b,event.values[1]);
-            writeValues("z",m6b,event.values[2]);
+            writeValues("x", m6b, event.values[0]);
+            writeValues("y", m6b, event.values[1]);
+            writeValues("z", m6b, event.values[2]);
 
             allSC[18] = event.values[0];
             allSC[19] = event.values[1];
             allSC[20] = event.values[2];
 
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) == event.sensor) {
             m7b.setText("Hodnoty rýchlostí otáčania okolo os (rad/s):\n");
-            writeValues("x",m7b,event.values[0]);
-            writeValues("y",m7b,event.values[1]);
-            writeValues("z",m7b,event.values[2]);
+            writeValues("x", m7b, event.values[0]);
+            writeValues("y", m7b, event.values[1]);
+            writeValues("z", m7b, event.values[2]);
 
             allSC[21] = event.values[0];
             allSC[22] = event.values[1];
             allSC[23] = event.values[2];
 
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED) == event.sensor) {
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED) == event.sensor) {
             m8b.setText("Hodnoty rýchlostí otáčania okolo os bez driftovej kompenzácie (rad/s):\n");
             writeValues("x", m8b, event.values[0]);
             writeValues("y", m8b, event.values[1]);
@@ -470,58 +461,46 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             allSC[27] = event.values[3];
             allSC[28] = event.values[4];
             allSC[29] = event.values[5];
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT) == event.sensor) {
             m9b.setText("Hodnota (0.0 - pri veľkej nepresnosti, 1.0 pri veľkej presnosti):\n");
-            writeValues("Zaznamenanie úderu srdca",m9b,event.values[0]);
+            writeValues("Zaznamenanie úderu srdca", m9b, event.values[0]);
             allSC[30] = event.values[0];
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) == event.sensor) {
             m10b.setText("Hodnota (bpm - počet úderov za min.):\n");
-            writeValues("Rýchlosť úderov srdca",m10b,event.values[0]);
+            writeValues("Rýchlosť úderov srdca", m10b, event.values[0]);
             allSC[31] = event.values[0];
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) == event.sensor) {
             m11b.setText("Hodnota (lux):\n");
-            writeValues("Okolité osvetlenie",m11b,event.values[0]);
+            writeValues("Okolité osvetlenie", m11b, event.values[0]);
             allSC[32] = event.values[0];
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) == event.sensor) {
             m12b.setText("Hodnoty akceleračnej rýchlosti okolo os bez gravitácie (m/s^2):\n");
-            writeValues("x",m12b,event.values[0]);
-            writeValues("y",m12b,event.values[1]);
-            writeValues("z",m12b,event.values[2]);
+            writeValues("x", m12b, event.values[0]);
+            writeValues("y", m12b, event.values[1]);
+            writeValues("z", m12b, event.values[2]);
 
             allSC[33] = event.values[0];
             allSC[34] = event.values[1];
             allSC[35] = event.values[2];
 
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) == event.sensor) {
             m13b.setText("Hodnoty okolitého magnetického poľa v osiach (uT):\n");
-            writeValues("x",m13b,event.values[0]);
-            writeValues("y",m13b,event.values[1]);
-            writeValues("z",m13b,event.values[2]);
+            writeValues("x", m13b, event.values[0]);
+            writeValues("y", m13b, event.values[1]);
+            writeValues("z", m13b, event.values[2]);
 
             allSC[36] = event.values[0];
             allSC[37] = event.values[1];
             allSC[38] = event.values[2];
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) == event.sensor) {
             m14b.setText("Hodnoty okolitého magnetického poľa v osiach bez kalibrácie ťažkými kovmi (uT):\n");
-            writeValues("x",m14b,event.values[0]);
-            writeValues("y",m14b,event.values[1]);
-            writeValues("z",m14b,event.values[2]);
+            writeValues("x", m14b, event.values[0]);
+            writeValues("y", m14b, event.values[1]);
+            writeValues("z", m14b, event.values[2]);
             m14b.append("Ovplyvnenie os ťažkými kovmi (uT):\n");
-            writeValues("x",m14b,event.values[3]);
-            writeValues("y",m14b,event.values[4]);
-            writeValues("z",m14b,event.values[5]);
+            writeValues("x", m14b, event.values[3]);
+            writeValues("y", m14b, event.values[4]);
+            writeValues("z", m14b, event.values[5]);
 
             allSC[39] = event.values[0];
             allSC[40] = event.values[1];
@@ -530,46 +509,40 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             allSC[43] = event.values[4];
             allSC[44] = event.values[5];
 
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT) == event.sensor) {
             m15b.setText("Hodnota (N/A, 1.0 pri pohnutí zariadením po dobu aspoň 5s):\n");
-            writeValues("Pohyb:",m15b,event.values[0]);
+            writeValues("Pohyb:", m15b, event.values[0]);
             allSC[45] = event.values[0];
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) == event.sensor) {
             m15bb.setText("Hodnoty (°):\n");
-            writeValues("Uhol zdvihu (uhol okolo osi x)",m15bb,event.values[1]);
-            writeValues("Bočný náklon (uhol okolo osi y)",m15bb,event.values[2]);
-            writeValues("Azimut (uhol okolo osi z)",m15bb,event.values[0]);
+            writeValues("Uhol zdvihu (uhol okolo osi x)", m15bb, event.values[1]);
+            writeValues("Bočný náklon (uhol okolo osi y)", m15bb, event.values[2]);
+            writeValues("Azimut (uhol okolo osi z)", m15bb, event.values[0]);
 
             allSC[46] = event.values[1];
             allSC[47] = event.values[2];
             allSC[48] = event.values[0];
 
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF) == event.sensor) {
             m16b.setText("Hodnoty:\n");
-            writeValues("x*sin(θ/2)",m16b,event.values[0]);
-            writeValues("y*sin(θ/2)",m16b,event.values[1]);
-            writeValues("z*sin(θ/2)",m16b,event.values[2]);
-            writeValues("cos(θ/2)",m16b,event.values[3]);
+            writeValues("x*sin(θ/2)", m16b, event.values[0]);
+            writeValues("y*sin(θ/2)", m16b, event.values[1]);
+            writeValues("z*sin(θ/2)", m16b, event.values[2]);
+            writeValues("cos(θ/2)", m16b, event.values[3]);
             m16b.append("Posun po osiach od ľubovoľného počiatku:\n");
-            writeValues("x",m16b,event.values[4]);
-            writeValues("y",m16b,event.values[5]);
-            writeValues("z",m16b,event.values[6]);
+            writeValues("x", m16b, event.values[4]);
+            writeValues("y", m16b, event.values[5]);
+            writeValues("z", m16b, event.values[6]);
             m16b.append("Delta rotácia kvaterniónu:\n");
-            writeValues("x*sin(θ/2)",m16b,event.values[7]);
-            writeValues("y*sin(θ/2)",m16b,event.values[8]);
-            writeValues("z*sin(θ/2)",m16b,event.values[9]);
-            writeValues("cos(θ/2)",m16b,event.values[10]);
+            writeValues("x*sin(θ/2)", m16b, event.values[7]);
+            writeValues("y*sin(θ/2)", m16b, event.values[8]);
+            writeValues("z*sin(θ/2)", m16b, event.values[9]);
+            writeValues("cos(θ/2)", m16b, event.values[10]);
             m16b.append("Delta posun po osiach:\n");
-            writeValues("x",m16b,event.values[11]);
-            writeValues("y",m16b,event.values[12]);
-            writeValues("z",m16b,event.values[13]);
-            writeValues("Sekvenčné číslo",m16b,event.values[14]);
+            writeValues("x", m16b, event.values[11]);
+            writeValues("y", m16b, event.values[12]);
+            writeValues("z", m16b, event.values[13]);
+            writeValues("Sekvenčné číslo", m16b, event.values[14]);
 
             allSC[49] = event.values[0];
             allSC[50] = event.values[1];
@@ -589,25 +562,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             allSC[62] = event.values[13];
             allSC[63] = event.values[14];
 
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE) == event.sensor) {
             m17b.setText("Hodnota (hPa):\n");
-            writeValues("Atmosferický tlak",m17b,event.values[0]);
+            writeValues("Atmosferický tlak", m17b, event.values[0]);
             allSC[64] = event.values[0];
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY) == event.sensor) {
             m18b.setText("Hodnota (cm):\n");
-            writeValues("Blízkosť",m18b,event.values[0]);
+            writeValues("Blízkosť", m18b, event.values[0]);
             allSC[65] = event.values[0];
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) == event.sensor) {
             m19b.setText("Hodnoty (%):\n");
-            writeValues("Relatívna vlhkosť okolitého vzduchu",m19b,event.values[0]);
+            writeValues("Relatívna vlhkosť okolitého vzduchu", m19b, event.values[0]);
             allSC[66] = event.values[0];
-            if(temperature > -499) {
+            if (temperature > -499) {
                 float dewPoint;
                 float h = (float) (Math.log(event.values[0] / 100.0) + (17.62 * temperature) / (243.12 + temperature));
                 dewPoint = (float) (243.12 * h / (17.62 - h));
@@ -622,64 +589,59 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 allSC[68] = absoluteHumidity;
 
             }
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) == event.sensor) {
             m20b.setText("Hodnoty (vzhľadom na geomagnetické pole Zeme):\n");
-            String value="";
-            for(int i=0; i < event.values.length; i++){
-                if(i==0) {
-                    value="x*sin(θ/2)";
+            String value = "";
+            for (int i = 0; i < event.values.length; i++) {
+                if (i == 0) {
+                    value = "x*sin(θ/2)";
                     allSC[69] = event.values[0];
-                }
-                else if(i==1) {
-                    value="y*sin(θ/2)";
+                } else if (i == 1) {
+                    value = "y*sin(θ/2)";
                     allSC[70] = event.values[1];
-                }
-                else if(i==2) {
-                    value="z*sin(θ/2)";
+                } else if (i == 2) {
+                    value = "z*sin(θ/2)";
                     allSC[71] = event.values[2];
-                }
-                else if(i==3) {
-                    value="cos(θ/2)";
+                } else if (i == 3) {
+                    value = "cos(θ/2)";
                     allSC[72] = event.values[3];
-                }
-                else if(i==4) {
-                    value="Odhadovaná presnosť (rad, -1 ak nie je k disp.)";
+                } else if (i == 4) {
+                    value = "Odhadovaná presnosť (rad, -1 ak nie je k disp.)";
                     allSC[73] = event.values[4];
                 }
-                writeValues(value,m20b,event.values[i]);
+                writeValues(value, m20b, event.values[i]);
             }
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION) == event.sensor) {
             m21b.setText("Bez hodnôt:\n");
-            writeValues("(1):",m21b,event.values[0]);
+            writeValues("(1):", m21b, event.values[0]);
             allSC[74] = event.values[0];
 
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT) == event.sensor) {
             m22b.setText("Hodnota (N/A, 1.0 pri nepohnutí zariadením po dobu aspoň 5s):\n");
-            writeValues("Bez pohybu:",m22b,event.values[0]);
+            writeValues("Bez pohybu:", m22b, event.values[0]);
             allSC[75] = event.values[0];
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) == event.sensor) {
             m23b.setText("Hodnota (kroky):\n");
-            writeValues("Počet krokov od posledného rebootu",m23b,event.values[0]);
+            writeValues("Počet krokov od posledného rebootu", m23b, event.values[0]);
             allSC[76] = event.values[0];
-        }
-        else
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) == event.sensor){
+        } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) == event.sensor) {
             m24b.setText("Hodnota (N/A, 1.0 pri kroku):\n");
-            writeValues("Krok",m24b,event.values[0]);
+            writeValues("Krok", m24b, event.values[0]);
             allSC[77] = event.values[0];
         }
 
 
-
-
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+           // return;
+        }
+        mGPS.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
     }
 
     public void writeValues(String s, TextView tv, Float f) {
@@ -711,6 +673,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             mSensorManager.registerListener(this, mList.get(i), SensorManager.SENSOR_DELAY_NORMAL);
         }
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            //return;
+        }
+        mGPS.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+
 
     }
 
@@ -718,21 +692,33 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onPause() {
         super.onPause();
         mSensorManager.unregisterListener(this);
+        // Remove the listener you previously added
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            //return;
+        }
+        mGPS.removeUpdates(locationListener);
     }
 
     //Run all checked phases
     public void startPhases() {
-        maxCount = Integer.parseInt(( (EditText) findViewById(R.id.pocetVzoriek)).getText().toString());
+        maxCount = Integer.parseInt(((EditText) findViewById(R.id.pocetVzoriek)).getText().toString());
 
         //Save data to SQLite (if phase is set to true
-        if(phase1 == true || phase2 == true || phase3 == true){
+        if (phase1 == true || phase2 == true || phase3 == true) {
             data2sql(maxCount);
         }
 
         //Execute phases
         int faza = 1;
-        for (faza = 1; faza <=3; faza++) {
-            if((faza == 1 && phase1 == true) || (faza == 2 && phase2 == true) ||(faza == 3 && phase3 == true)) {
+        for (faza = 1; faza <= 3; faza++) {
+            if ((faza == 1 && phase1 == true) || (faza == 2 && phase2 == true) || (faza == 3 && phase3 == true)) {
 
                 Calendar c = Calendar.getInstance();
                 int mYear = c.get(Calendar.YEAR);
@@ -750,14 +736,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     zaznamyZPrenosu = json(maxCount);
                     cas = zaznamyZPrenosu.first;
                     velkost = zaznamyZPrenosu.second;
-                }
-                else if (faza == 2) {
+                } else if (faza == 2) {
                     typ = "csv";
                     zaznamyZPrenosu = csv(maxCount);
                     cas = zaznamyZPrenosu.first;
                     velkost = zaznamyZPrenosu.second;
-                }
-                else {
+                } else {
                     typ = "dump";
                     zaznamyZPrenosu = dump(maxCount);
                     cas = zaznamyZPrenosu.first;
@@ -810,15 +794,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
-    public Pair<String, String> json (int max){
+    public Pair<String, String> json(int max) {
         String casPrenosu = "";
         String velkostSuboru = "";
         long zaciatokPrenosu = 0;
         long koniecPrenosu = 0;
         JSONArray jsonArr = new JSONArray();
-        try{
-            for (int i = 1; i<=max; i++){
-                Cursor cursor = sc.rawQuery("SELECT * FROM 'scData' WHERE id = '" + i + "'",null);
+        try {
+            for (int i = 1; i <= max; i++) {
+                Cursor cursor = sc.rawQuery("SELECT * FROM 'scData' WHERE id = '" + i + "'", null);
                 cursor.moveToFirst();
                 JSONObject jsonOb = new JSONObject();
                 jsonOb.put("'datum'", cursor.getString(1));
@@ -847,17 +831,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 jsonOb.put("'stationary_detect'", cursor.getString(24));
                 jsonOb.put("'step_counter'", cursor.getString(25));
                 jsonOb.put("'step_detector'", cursor.getString(26));
+                jsonOb.put("'gps'",cursor.getString(27));
                 jsonArr.put(jsonOb);
             }
-        }
-        catch (JSONException ex){
+        } catch (JSONException ex) {
             ex.printStackTrace();
         }
 
         String fileName = "sc.json";
         //OutputStreamWriter jsonFile;
 
-        try{
+        try {
             File path = getFilesDir();
 /*
             ContextWrapper cw = new ContextWrapper(this);
@@ -867,14 +851,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 path.mkdir();
             }
 */
-            File file = new File(path,fileName);
-           // jsonFile =  new OutputStreamWriter(file);
+            File file = new File(path, fileName);
+            // jsonFile =  new OutputStreamWriter(file);
             FileOutputStream stream = new FileOutputStream(file);
             stream.write(jsonArr.toString().getBytes());
             stream.close();
 
 
-          //  jsonFile.write(jsonArr.toString().getBytes());
+            //  jsonFile.write(jsonArr.toString().getBytes());
 
             System.out.println("*********************************************************");
             System.out.println(path.toString());
@@ -889,35 +873,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             System.out.println("***************velkost suboru:" + velkostSuboru + " cas prenosu" + casPrenosu + "*******************");
 
             //  jsonFile.flush();
-           // jsonFile.close();
+            // jsonFile.close();
             //Transfer json file to server
 
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
 
-        return new Pair<>(casPrenosu,velkostSuboru);
+        return new Pair<>(casPrenosu, velkostSuboru);
     }
 
 
-    public Pair<String, String> csv (int max){
+    public Pair<String, String> csv(int max) {
         String casPrenosu = "";
         String velkostSuboru = "";
         long zaciatokPrenosu = 0;
         long koniecPrenosu = 0;
         String csvArr = "";
-        try{
+        try {
             csvArr = csvArr + "'datum';'accelerometer';'ambient_temperature';'device_private_base';'game_rotation_vector';'geomagnetic_rotation_vector';" +
-             "'gravity';'gyroscope';'gyroscope_uncalibrated';'heart_beat';'heart_rate';" +
-            "'light';'linear_acceleration';'magnetic_field';'magnetic_field_uncalibrated';'motion_detect';" +
-            "'orientation';'pose_6dof';'pressure';'proximity';'relative_humidity';" +
-            "'rotation_vector';'significant_motion';'stationary_detect';'step_counter';'step_detector'\n";
-            for (int i = 1; i<=max; i++){
-                Cursor cursor = sc.rawQuery("SELECT * FROM 'scData' WHERE id = '" + i + "'",null);
+                    "'gravity';'gyroscope';'gyroscope_uncalibrated';'heart_beat';'heart_rate';" +
+                    "'light';'linear_acceleration';'magnetic_field';'magnetic_field_uncalibrated';'motion_detect';" +
+                    "'orientation';'pose_6dof';'pressure';'proximity';'relative_humidity';" +
+                    "'rotation_vector';'significant_motion';'stationary_detect';'step_counter';'step_detector';'gps'\n";
+            for (int i = 1; i <= max; i++) {
+                Cursor cursor = sc.rawQuery("SELECT * FROM 'scData' WHERE id = '" + i + "'", null);
                 cursor.moveToFirst();
                 csvArr = csvArr + "\"" + cursor.getString(1) + "\";";
                 csvArr = csvArr + "\"" + cursor.getString(2) + "\";";
@@ -944,19 +927,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 csvArr = csvArr + "\"" + cursor.getString(23) + "\";";
                 csvArr = csvArr + "\"" + cursor.getString(24) + "\";";
                 csvArr = csvArr + "\"" + cursor.getString(25) + "\";";
-                csvArr = csvArr + "\"" + cursor.getString(26) + "\"";
-                if (i<max)  csvArr = csvArr + "\n";
+                csvArr = csvArr + "\"" + cursor.getString(26) + "\";";
+                csvArr = csvArr + "\"" + cursor.getString(27) + "\"";
+                if (i < max) csvArr = csvArr + "\n";
             }
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
         String fileName = "sc.csv";
 
-        try{
+        try {
             File path = getFilesDir();
-            File file = new File(path,fileName);
+            File file = new File(path, fileName);
             FileOutputStream stream = new FileOutputStream(file);
             stream.write(csvArr.getBytes());
             stream.close();
@@ -972,18 +955,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             casPrenosu = Objects.toString(koniecPrenosu - zaciatokPrenosu) + "ms";
             velkostSuboru = Objects.toString(file.length()) + "B";
             System.out.println("***************velkost suboru:" + velkostSuboru + " cas prenosu" + casPrenosu + "*******************");
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
 
-        return new Pair<>(casPrenosu,velkostSuboru);
+        return new Pair<>(casPrenosu, velkostSuboru);
     }
 
-    public Pair<String, String> dump (int max){
+    public Pair<String, String> dump(int max) {
         String casPrenosu = "";
         String velkostSuboru = "";
         long zaciatokPrenosu = 0;
@@ -992,7 +974,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String fileName = "sc.db";
         int BUFFER = 2048;
         byte[] buffer = new byte[2048];
-        try{
+        try {
 
             String currentDBPath = "/data/data/" + getPackageName() + "/databases/SenCol";
             String backupDBPath = fileName;
@@ -1008,11 +990,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
             String pathToOurFile = "/data/data/com.hranicky.iv.sensorcollector/files/sc.db.zip";
             File file = new File(pathToOurFile);
-        try{
+            try {
 
                 FileOutputStream fos = new FileOutputStream(pathToOurFile);
                 ZipOutputStream zos = new ZipOutputStream(fos);
-                ZipEntry ze= new ZipEntry("sc.db");
+                ZipEntry ze = new ZipEntry("sc.db");
                 zos.putNextEntry(ze);
                 FileInputStream in = new FileInputStream("/data/data/com.hranicky.iv.sensorcollector/files/sc.db");
 
@@ -1029,13 +1011,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 System.out.println("Done");
 
-            }catch(IOException ex){
+            } catch (IOException ex) {
                 ex.printStackTrace();
             }
 
             System.out.println("*********************************************************");
-           // System.out.println(path.toString());
-           // System.out.println(csvArr.toString());
+            // System.out.println(path.toString());
+            // System.out.println(csvArr.toString());
             System.out.println("*********************************************************");
             zaciatokPrenosu = System.currentTimeMillis();
             sendFile(pathToOurFile);
@@ -1043,95 +1025,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             casPrenosu = Objects.toString(koniecPrenosu - zaciatokPrenosu) + "ms";
             velkostSuboru = Objects.toString(file.length()) + "B";
             System.out.println("***************velkost suboru:" + velkostSuboru + " cas prenosu" + casPrenosu + "*******************");
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
 
-        return new Pair<>(casPrenosu,velkostSuboru);
+        return new Pair<>(casPrenosu, velkostSuboru);
     }
 
     public void sendFile(String pathToOurFile) {
         String url2 = "http://147.175.98.76:443/~xhranicky/mysql/CRUD/Upload/handle_upload.php";
 
-        HttpURLConnection connection = null;
-        DataOutputStream outputStream = null;
-        DataInputStream inputStream = null;
-     /*       String urlServer = url2;
-            String lineEnd = "\r\n";
-            String twoHyphens = "--";
-            String boundary =  "*****";
-
-            int bytesRead, bytesAvailable, bufferSize;
-            byte[] buffer;
-            int maxBufferSize = 1*1024*1024;
-
-            try
-            {
-                FileInputStream fileInputStream = new FileInputStream(new File(pathToOurFile) );
-
-                URL url = new URL(urlServer);
-                connection = (HttpURLConnection) url.openConnection();
-
-            //    String usernamePassword = "xhranicky:andrej";
-             //   String encodedUsernamePassword = Base64.encodeToString(usernamePassword.getBytes(), Base64.DEFAULT);
-             //   connection.setRequestProperty ("Authorization", "Basic " + encodedUsernamePassword);
-                // Allow Inputs &amp; Outputs.
-                connection.setDoInput(true);
-                connection.setDoOutput(true);
-                connection.setUseCaches(false);
-
-                // Set HTTP method to POST.
-                connection.setRequestMethod("POST");
-
-                connection.setRequestProperty("Connection", "Keep-Alive");
-                connection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
-
-                outputStream = new DataOutputStream( connection.getOutputStream() );
-                outputStream.writeBytes(twoHyphens + boundary + lineEnd);
-                outputStream.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\";filename=\"" + pathToOurFile +"\"" + lineEnd);
-                outputStream.writeBytes(lineEnd);
-
-                bytesAvailable = fileInputStream.available();
-                bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                buffer = new byte[bufferSize];
-
-                // Read file
-                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-                while (bytesRead > 0)
-                {
-                    outputStream.write(buffer, 0, bufferSize);
-                    bytesAvailable = fileInputStream.available();
-                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-                }
-
-                outputStream.writeBytes(lineEnd);
-                outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-                // Responses from the server (code and message)
-                int serverResponseCode = connection.getResponseCode();
-                String serverResponseMessage = connection.getResponseMessage();
-
-                System.out.println("OOOOOOOOOOOOOOOOOOO" + serverResponseCode + serverResponseMessage);
-
-                fileInputStream.close();
-                outputStream.flush();
-                outputStream.close();
-            }
-            catch (Exception ex)
-            {
-                System.out.println("---------------------- ERROR *************************************************");
-                //Exception handling
-            }
-            */
-
-        try
-        {
+        try {
             HttpClient client = new DefaultHttpClient();
             HttpPost post = new HttpPost(url2);
 
@@ -1142,16 +1049,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
             entityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
             entityBuilder.setBoundary("-------------" + System.currentTimeMillis());
-            //               entityBuilder.addTextBody("uploadedfile", userId);
 
-            if(pathToOurFile != null)
-            {
-    //            InputStream inputStream2;
-      //          inputStream2 = new FileInputStream(file);
-        //        InputStreamBody inputStreamBody = new InputStreamBody(new ByteArrayInputStream(IOUtils.toByteArray(inputStream2)), pathToOurFile);
-                // entityBuilder.addPart("uploadedfile", inputStreamBody);
-                //  entityBuilder.addBinaryBody("uploadedfile", file);
-                //   entityBuilder.addPart("uploadedfile", new FileBody(file));
+            if (pathToOurFile != null) {
                 entityBuilder.addPart("uploadedfile", new FileBody(new File(pathToOurFile)));
             }
 
@@ -1166,145 +1065,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             System.out.println(response);
             System.out.println("************************------------------*********************************");
 
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             System.out.println("---------------------- ERROR *************************************************");
 
             e.printStackTrace();
         }
-
-            /*
-            try {
-                HttpClient httpclient = new DefaultHttpClient();
-
-                HttpPost httppost = new HttpPost(url2);
-
-                InputStreamEntity reqEntity = new InputStreamEntity(new FileInputStream(file), -1);
-                reqEntity.setContentType("binary/octet-stream");
-                reqEntity.setChunked(true); // Send in multiple parts if needed
-                httppost.setEntity(reqEntity);
-
-
-                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                StrictMode.setThreadPolicy(policy);
-
-                HttpResponse response = httpclient.execute(httppost);
-                //Do something with response...
-                System.out.println("***********************-----------------**********************************");
-                System.out.println(response);
-                System.out.println("************************------------------*********************************");
-
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("---------------------- ERROR *************************************************");
-            }
-*/
-
-            /*
-            try {
-                SimpleFTP ftp = new SimpleFTP();
-
-                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                StrictMode.setThreadPolicy(policy);
-
-
-                // Connect to an FTP server on port 21.
-                ftp.connect("/147.175.98.76:443/", 21, "xhranicky", "andrej");
-
-                // Set binary mode.
-                ftp.bin();
-
-                // Change to a new working directory on the FTP server.
-                ftp.cwd("/home/xhranicky/public_html/");
-
-                // Upload some files.
-            //    ftp.stor(new File("webcam.jpg"));
-            //    ftp.stor(new File("comicbot-latest.png"));
-                ftp.stor(file);
-
-                // You can also upload from an InputStream, e.g.
-            //    ftp.stor(new FileInputStream(new File("test.png")), "test.png");
-            //    ftp.stor(someSocket.getInputStream(), "blah.dat");
-
-                // Quit from the FTP server.
-                ftp.disconnect();
-            }
-            catch (IOException e) {
-                // Jibble
-                System.out.println("---------------------- ERROR *************************************************");
-            }
-
- */
-/*
-            FTPClient client = new FTPClient();
-
-            try {
-
-                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                StrictMode.setThreadPolicy(policy);
-
-                client.connect("147.175.98.76",443);
-                client.login("xhranicky", "andrej");
-                client.setType(FTPClient.TYPE_BINARY);
-                //client.changeDirectory("/upload/");
-
-                client.upload(file, new MyTransferListener());
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                try {
-                    client.disconnect(true);
-                } catch (Exception e2) {
-                    e2.printStackTrace();
-                }
-            }
-*/
-
-/*
-            System.out.println("***********************-----------------**********************************");
-            System.out.println(response);
-            System.out.println("************************------------------*********************************");
-*/
     }
 
-    /*******  Used to file upload and show progress  **********/
-/*    public class MyTransferListener implements FTPDataTransferListener {
-
-        public void started() {
-            Toast.makeText(getBaseContext(), " Upload Started ...", Toast.LENGTH_SHORT).show();
-            //System.out.println(" Upload Started ...");
-        }
-
-        public void transferred(int length) {
-
-            // Yet other length bytes has been transferred since the last time this
-            // method was called
-            Toast.makeText(getBaseContext(), " transferred ..." + length, Toast.LENGTH_SHORT).show();
-            //System.out.println(" transferred ..." + length);
-        }
-
-        public void completed() {
-            Toast.makeText(getBaseContext(), " completed ...", Toast.LENGTH_SHORT).show();
-            //System.out.println(" completed ..." );
-        }
-
-        public void aborted() {
-
-            Toast.makeText(getBaseContext()," transfer aborted , please try again...", Toast.LENGTH_SHORT).show();
-            //System.out.println(" aborted ..." );
-        }
-
-        public void failed() {
-            // Transfer failed
-            System.out.println(" failed ..." );
-        }
-
-    }
-*/
-
-    public void data2sql (int max){
+    public void data2sql(int max) {
         sc.execSQL("DROP TABLE IF EXISTS 'scData'");
         sc.execSQL("CREATE TABLE 'scData' ('id' int(11) NOT NULL," +
                 "'datum' varchar(45) NOT NULL," +
@@ -1333,6 +1101,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 "'stationary_detect' varchar," +
                 "'step_counter' varchar," +
                 "'step_detector' varchar," +
+                "'gps' varchar," +
                 "PRIMARY KEY ('id'));");
 
         int actual = 0;
@@ -1375,7 +1144,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     "'" + allSC[74] + "'," +
                     "'" + allSC[75] + "'," +
                     "'" + allSC[76] + "'," +
-                    "'" + allSC[77] + "');");
+                    "'" + allSC[77] + "'," +
+                    "'" + GPSData + "');");
         }
 
     }
@@ -1386,34 +1156,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         boolean checked = ((CheckBox) view).isChecked();
 
         // Check which checkbox was clicked
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.phase1:
-                if (checked)
-                {
+                if (checked) {
                     phase1 = true;
-                }
-                else
-                {
+                } else {
                     phase1 = false;
                 }
                 break;
             case R.id.phase2:
-                if (checked)
-                {
+                if (checked) {
                     phase2 = true;
-                }
-                else
-                {
+                } else {
                     phase2 = false;
                 }
                 break;
             case R.id.phase3:
-                if (checked)
-                {
+                if (checked) {
                     phase3 = true;
-                }
-                else
-                {
+                } else {
                     phase3 = false;
                 }
                 break;
@@ -1422,7 +1183,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
     private void initializeSensors() {
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
             // Success! There's a pressure sensor.
             mACCELEROMETER = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             setListener(mACCELEROMETER);
@@ -1431,12 +1192,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             m1a.append("\nNázov: " + mACCELEROMETER.getName() + "\nPredajca: " + mACCELEROMETER.getVendor() + "\nVerzia: " + mACCELEROMETER.getVersion() + "\n");
 
-        }
-        else {
+        } else {
             // Failure! No pressure sensor.
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) != null) {
             // Success! There's a pressure sensor.
             mAMBIENT_TEMPERATURE = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
             setListener(mAMBIENT_TEMPERATURE);
@@ -1447,7 +1207,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE) != null) {
             // Success! There's a pressure sensor.
             mDEVICE_PRIVATE_BASE = mSensorManager.getDefaultSensor(Sensor.TYPE_DEVICE_PRIVATE_BASE);
             setListener(mDEVICE_PRIVATE_BASE);
@@ -1458,7 +1218,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR) != null) {
             // Success! There's a pressure sensor.
             mGAME_ROTATION_VECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
             setListener(mGAME_ROTATION_VECTOR);
@@ -1469,7 +1229,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR) != null) {
             // Success! There's a pressure sensor.
             mGEOMAGNETIC_ROTATION_VECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_GEOMAGNETIC_ROTATION_VECTOR);
             setListener(mGEOMAGNETIC_ROTATION_VECTOR);
@@ -1480,7 +1240,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY) != null) {
             // Success! There's a pressure sensor.
             mGRAVITY = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
             setListener(mGRAVITY);
@@ -1491,7 +1251,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null) {
             // Success! There's a pressure sensor.
             mGYROSCOPE = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
             setListener(mGYROSCOPE);
@@ -1502,7 +1262,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED) != null) {
             // Success! There's a pressure sensor.
             mGYROSCOPE_UNCALIBRATED = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
             setListener(mGYROSCOPE_UNCALIBRATED);
@@ -1513,7 +1273,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT) != null) {
             // Success! There's a pressure sensor.
             mHEART_BEAT = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_BEAT);
             setListener(mHEART_BEAT);
@@ -1524,7 +1284,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) != null) {
             // Success! There's a pressure sensor.
             mHEART_RATE = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
             setListener(mHEART_RATE);
@@ -1535,7 +1295,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT) != null) {
             // Success! There's a pressure sensor.
             mLIGHT = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
             setListener(mLIGHT);
@@ -1546,7 +1306,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION) != null) {
             // Success! There's a pressure sensor.
             mLINEAR_ACCELERATION = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
             setListener(mLINEAR_ACCELERATION);
@@ -1557,7 +1317,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD) != null) {
             // Success! There's a pressure sensor.
             mMAGNETIC_FIELD = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
             setListener(mMAGNETIC_FIELD);
@@ -1568,7 +1328,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) != null) {
             // Success! There's a pressure sensor.
             mMAGNETIC_FIELD_UNCALIBRATED = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED);
             setListener(mMAGNETIC_FIELD_UNCALIBRATED);
@@ -1579,7 +1339,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT) != null) {
             // Success! There's a pressure sensor.
             mMOTION_DETECT = mSensorManager.getDefaultSensor(Sensor.TYPE_MOTION_DETECT);
             setListener(mMOTION_DETECT);
@@ -1590,7 +1350,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION) != null) {
             // Success! There's a pressure sensor.
             mORIENTATION = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
             setListener(mORIENTATION);
@@ -1601,7 +1361,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF) != null) {
             // Success! There's a pressure sensor.
             mPOSE_6DOF = mSensorManager.getDefaultSensor(Sensor.TYPE_POSE_6DOF);
             setListener(mPOSE_6DOF);
@@ -1612,7 +1372,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE) != null) {
             // Success! There's a pressure sensor.
             mPRESSURE = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
             setListener(mPRESSURE);
@@ -1623,7 +1383,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY) != null) {
             // Success! There's a pressure sensor.
             mPROXIMITY = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
             setListener(mPROXIMITY);
@@ -1634,7 +1394,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY) != null) {
             // Success! There's a pressure sensor.
             mRELATIVE_HUMIDITY = mSensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
             setListener(mRELATIVE_HUMIDITY);
@@ -1645,7 +1405,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) != null) {
             // Success! There's a pressure sensor.
             mROTATION_VECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
             setListener(mROTATION_VECTOR);
@@ -1656,7 +1416,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION) != null) {
             // Success! There's a pressure sensor.
             mSIGNIFICANT_MOTION = mSensorManager.getDefaultSensor(Sensor.TYPE_SIGNIFICANT_MOTION);
             setListener(mSIGNIFICANT_MOTION);
@@ -1667,7 +1427,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT) != null) {
             // Success! There's a pressure sensor.
             mSTATIONARY_DETECT = mSensorManager.getDefaultSensor(Sensor.TYPE_STATIONARY_DETECT);
             setListener(mSTATIONARY_DETECT);
@@ -1678,7 +1438,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null) {
             // Success! There's a pressure sensor.
             mSTEP_COUNTER = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
             setListener(mSTEP_COUNTER);
@@ -1689,7 +1449,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
-        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null){
+        if (mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR) != null) {
             // Success! There's a pressure sensor.
             mSTEP_DETECTOR = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
             setListener(mSTEP_DETECTOR);
@@ -1700,7 +1460,62 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+           // return;
+        }
+        // Register the listener with the Location Manager to receive location updates
+        mGPS.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
     }
+
+    // Define a listener that responds to location updates
+    LocationListener locationListener = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            // Called when a new location is found by the gps location provider.
+            //makeUseOfNewLocation(location);
+
+            String zemDlzka = "" + location.getLongitude();
+            String zemSirka = "" + location.getLatitude();
+            String nadVyska = "" + location.getAltitude();
+            String presnost = "" + location.getAccuracy();
+            String cas = "" + location.getTime();
+
+            m25a.setText("GPS:\n Aktívne");
+            m25b.setText("Hodnoty:\nZemepisná dĺžka: " + zemDlzka + "\nZemepisná šírka: " + zemSirka + "\nNadmorská výška: " + nadVyska + "\nPresnosť: " + presnost + "\nČas: " + cas +"\n");
+            GPSData = zemDlzka + ";" + zemSirka + ";" + nadVyska + ";" + presnost + ";" + cas;
+
+
+            System.out.println("---------------------------------\n\n\n\nDATA PROV EN\n" + GPSData + "\n\n\n------------------------");
+
+        }
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+        }
+
+        public void onProviderEnabled(String provider) {
+            m25a.setText("GPS:\n Aktívne");
+            m25b.setText("Hodnoty:\n Zisťujem polohu!");
+//                GPSData = "null;null;null;null;null";
+
+            System.out.println("---------------------------------\n\n\n\nPROVIDER ENABLED\n\n\n\n------------------------");
+
+        }
+
+        public void onProviderDisabled(String provider) {
+            m25a.setText("GPS:\n Neaktívne");
+            m25b.setText("Hodnoty:\n Potrebné aktivovať GPS!\n(Aktivácia môže trvať niekoľko sekúnd)\n");
+            GPSData = "null;null;null;null;null";
+
+            System.out.println("---------------------------------\n\n\n\nPROVIDER\n\n\n\n------------------------");
+
+        }
+    };
 
 
     private void initializeTextViews() {
@@ -1729,6 +1544,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         m22a=(TextView) findViewById(R.id.textViewM22a);
         m23a=(TextView) findViewById(R.id.textViewM23a);
         m24a=(TextView) findViewById(R.id.textViewM24a);
+        m25a=(TextView) findViewById(R.id.textViewM25a);
 
         m1b=(TextView) findViewById(R.id.textViewM1b);
         m2b=(TextView) findViewById(R.id.textViewM2b);
@@ -1755,6 +1571,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         m22b=(TextView) findViewById(R.id.textViewM22b);
         m23b=(TextView) findViewById(R.id.textViewM23b);
         m24b=(TextView) findViewById(R.id.textViewM24b);
+        m25b=(TextView) findViewById(R.id.textViewM25b);
 
     }
 

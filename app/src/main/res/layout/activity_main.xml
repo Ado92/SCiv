@@ -793,6 +793,31 @@
 
 
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GPS:\n Neaktívne"      android:background="@drawable/sensorborder"
+        android:id="@+id/textViewM25a"
+        android:layout_below="@+id/textViewM24b"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:paddingLeft="5dp"       android:visibility="visible"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hodnoty:\n Potrebné aktivovať GPS!\n(Aktivácia môže trvať niekoľko sekúnd)\n"
+        android:id="@+id/textViewM25b"
+        android:layout_below="@+id/textViewM25a"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorSensorCollector"
+        android:layout_marginTop="0dp"
+        android:paddingLeft="5dp"       android:visibility="visible"/>
 
 
 
@@ -801,7 +826,7 @@
         android:layout_height="wrap_content"
         android:text="Senzory:"      android:background="@drawable/sensorborder"
         android:id="@+id/textView2"
-        android:layout_below="@+id/textViewM24b"
+        android:layout_below="@+id/textViewM25b"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
