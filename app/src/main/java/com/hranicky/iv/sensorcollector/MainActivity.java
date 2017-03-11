@@ -1509,7 +1509,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             String presnost = "" + location.getAccuracy();
             String cas = "" + location.getTime();
 
-            m25a.setText("GPS:\n Aktívne");
+            m25a.setText("GPS:\n Aktívne\n");
             m25b.setText("Hodnoty:\nZemepisná dĺžka: " + zemDlzka + "\nZemepisná šírka: " + zemSirka + "\nNadmorská výška: " + nadVyska + "\nPresnosť: " + presnost + "\nČas: " + cas +"\n");
             GPSData = zemDlzka + ";" + zemSirka + ";" + nadVyska + ";" + presnost + ";" + cas;
 
@@ -1523,7 +1523,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         public void onProviderEnabled(String provider) {
             m25a.setText("GPS:\n Aktívne\n");
-            m25b.setText("Hodnoty:\n Zisťujem polohu!");
+            m25b.setText("Hodnoty:\n Zisťujem polohu!\n");
 //                GPSData = "null;null;null;null;null";
 
             System.out.println("---------------------------------\n\n\n\nPROVIDER ENABLED\n\n\n\n------------------------");
@@ -1610,6 +1610,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onClick(View v) {
         if(v == start){
+            Toast.makeText(MainActivity.this, "Počkajte prosím, záznamy sa spracúvajú.", Toast.LENGTH_SHORT).show();
             sensorsRunning = new SensorsDataTask();
             sensorsRunning.execute();
             /*MainActivity.this.runOnUiThread(new Runnable() {
