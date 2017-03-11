@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     TextView tv1 = null;
     TextView tv2 = null;
 
-    private SensorManager mSensorManager;
+    private volatile SensorManager mSensorManager;
     private List<Sensor> mList;
     //Senzory:
     private Sensor mACCELEROMETER;
@@ -127,12 +127,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor mSTEP_COUNTER;
     private Sensor mSTEP_DETECTOR;
 
-    private LocationManager mGPS;
-    private String GPSData = "null;null;null;null;null";
+    private volatile LocationManager mGPS;
+    private volatile String GPSData = "null;null;null;null;null";
 
     //TextView:
-    private TextView m1a = null, m2a = null, m3a = null, m4a = null, m5a = null, m6a = null, m7a = null, m8a = null, m9a = null, m10a = null, m11a = null, m12a = null, m13a = null, m14a = null, m15a = null, m15aa = null, m16a = null, m17a = null, m18a = null, m19a = null, m20a = null, m21a = null, m22a = null, m23a = null, m24a = null, m25a = null;
-    private TextView m1b = null, m2b = null, m3b = null, m4b = null, m5b = null, m6b = null, m7b = null, m8b = null, m9b = null, m10b = null, m11b = null, m12b = null, m13b = null, m14b = null, m15b = null, m15bb = null, m16b = null, m17b = null, m18b = null, m19b = null, m20b = null, m21b = null, m22b = null, m23b = null, m24b = null, m25b = null;
+    private volatile TextView m1a = null, m2a = null, m3a = null, m4a = null, m5a = null, m6a = null, m7a = null, m8a = null, m9a = null, m10a = null, m11a = null, m12a = null, m13a = null, m14a = null, m15a = null, m15aa = null, m16a = null, m17a = null, m18a = null, m19a = null, m20a = null, m21a = null, m22a = null, m23a = null, m24a = null, m25a = null;
+    private volatile TextView m1b = null, m2b = null, m3b = null, m4b = null, m5b = null, m6b = null, m7b = null, m8b = null, m9b = null, m10b = null, m11b = null, m12b = null, m13b = null, m14b = null, m15b = null, m15bb = null, m16b = null, m17b = null, m18b = null, m19b = null, m20b = null, m21b = null, m22b = null, m23b = null, m24b = null, m25b = null;
 
     //Temperature
     private float temperature = (float) -500.0;
@@ -156,7 +156,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private EditText et;
 
     //SQLite Database
-    private SQLiteDatabase sc;
+    private volatile SQLiteDatabase sc;
+
+    //Thread for sensors
+    private volatile boolean running = true;
+    private AsyncTask sensorsRunning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,29 +178,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 */
         initializeTextViews();
 
-
-        //GPS
-        // Acquire a reference to the system Location Manager
-        mGPS = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mList = mSensorManager.getSensorList(Sensor.TYPE_ALL);
 
         initializeSensors();
+
         tv2.setVisibility(View.VISIBLE);
         tv2.setText("Senzorov:" + mList.size());
         for (int i = 0; i < mList.size(); i++) {
             tv2.append("\n" + mList.get(i).getName());
         }
-
-/*
-        mList= mSensorManager.getSensorList(Sensor.TYPE_ALL);
-
-        for (int i = 1; i < mList.size(); i++) {
-            tv1.setVisibility(View.VISIBLE);
-            tv1.append("\n" + mList.get(i).getName() + "\n" + mList.get(i).getVendor() + "\n" + mList.get(i).getVersion() + "\n\n");
-        }
-*/
 
         ph1 = (CheckBox) findViewById(R.id.phase1);
         ph2 = (CheckBox) findViewById(R.id.phase2);
@@ -224,6 +215,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         start.setOnClickListener(this);
 
 
+    }
+
+    class SensorsDataTask extends AsyncTask <Object, Void, Void> {
+        /**
+         * Override this method to perform a computation on a background thread. The
+         * specified parameters are the parameters passed to {@link #execute}
+         * by the caller of this task.
+         * <p/>
+         * This method can call {@link #publishProgress} to publish updates
+         * on the UI thread.
+         *
+         * @param params The parameters of the task.
+         * @return A result, defined by the subclass of this task.
+         * @see #onPreExecute()
+         * @see #onPostExecute
+         * @see #publishProgress
+         */
+        @Override
+        protected Void doInBackground(Object... params) {
+            startPhases();
+            return null;
+        }
     }
 
     @Override
@@ -295,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     float[] gravity = new float[3];
     float[] linear_acceleration = new float[3];
-    float[] allSC = new float[78];
+    volatile float[] allSC = new float[78];
 
     /**
      * Called when there is a new sensor event.  Note that "on changed"
@@ -668,7 +681,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onResume() {
         super.onResume();
 
-
         for (int i = 0; i < mList.size(); i++) {
             mSensorManager.registerListener(this, mList.get(i), SensorManager.SENSOR_DELAY_NORMAL);
         }
@@ -686,11 +698,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mGPS.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 
 
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        //sensorsRunning SensorsDataTask set to STOP
+        running = false;
         mSensorManager.unregisterListener(this);
         // Remove the listener you previously added
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -705,6 +720,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         mGPS.removeUpdates(locationListener);
     }
+
 
     //Run all checked phases
     public void startPhases() {
@@ -760,13 +776,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     @Override
                     protected void onPreExecute() {
                         super.onPreExecute();
-                        loading = ProgressDialog.show(MainActivity.this, "Adding...", "Wait...", false, false);
+                     //   loading = ProgressDialog.show(MainActivity.this, "Adding...", "Wait...", false, false);
                     }
 
                     @Override
                     protected void onPostExecute(String s) {
                         super.onPostExecute(s);
-                        loading.dismiss();
+                       // loading.dismiss();
                         Toast.makeText(MainActivity.this, "Pridávam " + (suborov) + "", Toast.LENGTH_SHORT).show();
                     }
 
@@ -789,8 +805,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 ac.execute();
             }
         }
-        start.setText("Štart");
-        start.setTag(0);
+
 
     }
 
@@ -1107,8 +1122,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         int actual = 0;
 
         while (actual < max) {
-            start.setText("Stop\n(" + (actual + 1) + "/" + max + ")");
-            start.setTag(actual + 1);
             actual++;
 
             Calendar c = Calendar.getInstance();
@@ -1117,6 +1130,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             int mDay = c.get(Calendar.DAY_OF_MONTH);
             Date date = new Date(mYear - 1900, mMonth, mDay);
             String datum = DateFormat.format("dd.MM.yyyy", date).toString();
+
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             sc.execSQL("INSERT INTO 'scData' VALUES(" + actual + "," +
                     "'" + datum + "'," +
@@ -1460,6 +1479,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         }
 
+        //GPS
+        // Acquire a reference to the system Location Manager
+        mGPS = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -1499,7 +1522,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         public void onProviderEnabled(String provider) {
-            m25a.setText("GPS:\n Aktívne");
+            m25a.setText("GPS:\n Aktívne\n");
             m25b.setText("Hodnoty:\n Zisťujem polohu!");
 //                GPSData = "null;null;null;null;null";
 
@@ -1508,7 +1531,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         public void onProviderDisabled(String provider) {
-            m25a.setText("GPS:\n Neaktívne");
+            m25a.setText("GPS:\n Neaktívne\n");
             m25b.setText("Hodnoty:\n Potrebné aktivovať GPS!\n(Aktivácia môže trvať niekoľko sekúnd)\n");
             GPSData = "null;null;null;null;null";
 
@@ -1587,7 +1610,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onClick(View v) {
         if(v == start){
-            startPhases();
+            sensorsRunning = new SensorsDataTask();
+            sensorsRunning.execute();
+            /*MainActivity.this.runOnUiThread(new Runnable() {
+                public void run() {
+                    startPhases();
+                }
+            });*/
         }
 
     }
