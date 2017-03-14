@@ -748,16 +748,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 final String typ;
                 if (faza == 1) {
+                    Toast.makeText(MainActivity.this, "Vytváram JSON.", Toast.LENGTH_SHORT).show();
                     typ = "json";
                     zaznamyZPrenosu = json(maxCount);
                     cas = zaznamyZPrenosu.first;
                     velkost = zaznamyZPrenosu.second;
                 } else if (faza == 2) {
+                    Toast.makeText(MainActivity.this, "Vytváram CSV.", Toast.LENGTH_SHORT).show();
                     typ = "csv";
                     zaznamyZPrenosu = csv(maxCount);
                     cas = zaznamyZPrenosu.first;
                     velkost = zaznamyZPrenosu.second;
                 } else {
+                    Toast.makeText(MainActivity.this, "Vytváram DUMP.", Toast.LENGTH_SHORT).show();
                     typ = "dump";
                     zaznamyZPrenosu = dump(maxCount);
                     cas = zaznamyZPrenosu.first;
@@ -814,6 +817,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String velkostSuboru = "";
         long zaciatokPrenosu = 0;
         long koniecPrenosu = 0;
+        //Začiatok vytvárania JSONu
+        zaciatokPrenosu = System.currentTimeMillis();
         JSONArray jsonArr = new JSONArray();
         try {
             for (int i = 1; i <= max; i++) {
@@ -880,7 +885,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             System.out.println(jsonArr.toString());
             System.out.println("*********************************************************");
             String pathToOurFile = "/data/data/com.hranicky.iv.sensorcollector/files/sc.json";
-            zaciatokPrenosu = System.currentTimeMillis();
+//            zaciatokPrenosu = System.currentTimeMillis();
             sendFile(pathToOurFile);
             koniecPrenosu = System.currentTimeMillis();
             casPrenosu = Objects.toString(koniecPrenosu - zaciatokPrenosu) + "ms";
@@ -907,6 +912,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String velkostSuboru = "";
         long zaciatokPrenosu = 0;
         long koniecPrenosu = 0;
+        //Zaciatok vytvárania CSV
+        zaciatokPrenosu = System.currentTimeMillis();
         String csvArr = "";
         try {
             csvArr = csvArr + "'datum';'accelerometer';'ambient_temperature';'device_private_base';'game_rotation_vector';'geomagnetic_rotation_vector';" +
@@ -964,7 +971,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             System.out.println(csvArr.toString());
             System.out.println("*********************************************************");
             String pathToOurFile = "/data/data/com.hranicky.iv.sensorcollector/files/sc.csv";
-            zaciatokPrenosu = System.currentTimeMillis();
+//            zaciatokPrenosu = System.currentTimeMillis();
             sendFile(pathToOurFile);
             koniecPrenosu = System.currentTimeMillis();
             casPrenosu = Objects.toString(koniecPrenosu - zaciatokPrenosu) + "ms";
@@ -985,7 +992,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String velkostSuboru = "";
         long zaciatokPrenosu = 0;
         long koniecPrenosu = 0;
-
+        //Zaciatok vytvárania DUMPu
+        zaciatokPrenosu = System.currentTimeMillis();
         String fileName = "sc.db";
         int BUFFER = 2048;
         byte[] buffer = new byte[2048];
@@ -1034,7 +1042,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             // System.out.println(path.toString());
             // System.out.println(csvArr.toString());
             System.out.println("*********************************************************");
-            zaciatokPrenosu = System.currentTimeMillis();
+//            zaciatokPrenosu = System.currentTimeMillis();
             sendFile(pathToOurFile);
             koniecPrenosu = System.currentTimeMillis();
             casPrenosu = Objects.toString(koniecPrenosu - zaciatokPrenosu) + "ms";
@@ -1081,7 +1089,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             System.out.println("************************------------------*********************************");
 
         } catch (Exception e) {
-            System.out.println("---------------------- ERROR *************************************************");
+          //  System.out.println("---------------------- ERROR *************************************************");
 
             e.printStackTrace();
         }
@@ -1514,7 +1522,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             GPSData = zemDlzka + ";" + zemSirka + ";" + nadVyska + ";" + presnost + ";" + cas;
 
 
-            System.out.println("---------------------------------\n\n\n\nDATA PROV EN\n" + GPSData + "\n\n\n------------------------");
+          //  System.out.println("---------------------------------\n\n\n\nDATA PROV EN\n" + GPSData + "\n\n\n------------------------");
 
         }
 
@@ -1526,7 +1534,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             m25b.setText("Hodnoty:\n Zisťujem polohu!\n");
 //                GPSData = "null;null;null;null;null";
 
-            System.out.println("---------------------------------\n\n\n\nPROVIDER ENABLED\n\n\n\n------------------------");
+         //   System.out.println("---------------------------------\n\n\n\nPROVIDER ENABLED\n\n\n\n------------------------");
 
         }
 
@@ -1535,7 +1543,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             m25b.setText("Hodnoty:\n Potrebné aktivovať GPS!\n(Aktivácia môže trvať niekoľko sekúnd)\n");
             GPSData = "null;null;null;null;null";
 
-            System.out.println("---------------------------------\n\n\n\nPROVIDER\n\n\n\n------------------------");
+          //  System.out.println("---------------------------------\n\n\n\nPROVIDER\n\n\n\n------------------------");
 
         }
     };
