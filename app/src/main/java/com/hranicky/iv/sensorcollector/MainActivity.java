@@ -17,8 +17,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.os.StrictMode;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -82,6 +85,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.LogRecord;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -721,6 +725,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         mGPS.removeUpdates(locationListener);
     }
 
+    //Toast pri vytvarani suboru
+    private final Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            if(msg.arg1 == 1) {
+                Toast.makeText(getApplicationContext(), "Vytváram JSON.", Toast.LENGTH_LONG).show();
+            } else if (msg.arg1 == 2) {
+                Toast.makeText(getApplicationContext(), "Vytváram CSV.", Toast.LENGTH_LONG).show();
+            } else if (msg.arg1 == 3) {
+                Toast.makeText(getApplicationContext(), "Vytváram DUMP.", Toast.LENGTH_LONG).show();
+            }
+        }
+    };
 
     //Run all checked phases
     public void startPhases() {
@@ -730,6 +746,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (phase1 == true || phase2 == true || phase3 == true) {
             data2sql(maxCount);
         }
+
+        Message msg;
 
         //Execute phases
         int faza = 1;
@@ -748,19 +766,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 final String typ;
                 if (faza == 1) {
-                    Toast.makeText(MainActivity.this, "Vytváram JSON.", Toast.LENGTH_SHORT).show();
+                    msg = handler.obtainMessage();
+                    msg.arg1 = 1;
+                    handler.sendMessage(msg);
+//                    Toast.makeText(MainActivity.this, "Vytváram JSON.", Toast.LENGTH_SHORT).show();
                     typ = "json";
                     zaznamyZPrenosu = json(maxCount);
                     cas = zaznamyZPrenosu.first;
                     velkost = zaznamyZPrenosu.second;
                 } else if (faza == 2) {
-                    Toast.makeText(MainActivity.this, "Vytváram CSV.", Toast.LENGTH_SHORT).show();
+                    msg = handler.obtainMessage();
+                    msg.arg1 = 2;
+                    handler.sendMessage(msg);
+//                    Toast.makeText(MainActivity.this, "Vytváram CSV.", Toast.LENGTH_SHORT).show();
                     typ = "csv";
                     zaznamyZPrenosu = csv(maxCount);
                     cas = zaznamyZPrenosu.first;
                     velkost = zaznamyZPrenosu.second;
                 } else {
-                    Toast.makeText(MainActivity.this, "Vytváram DUMP.", Toast.LENGTH_SHORT).show();
+                    msg = handler.obtainMessage();
+                    msg.arg1 = 3;
+                    handler.sendMessage(msg);
+//                    Toast.makeText(MainActivity.this, "Vytváram DUMP.", Toast.LENGTH_SHORT).show();
                     typ = "dump";
                     zaznamyZPrenosu = dump(maxCount);
                     cas = zaznamyZPrenosu.first;
