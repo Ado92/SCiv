@@ -34,6 +34,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -166,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private volatile boolean running = true;
     private AsyncTask sensorsRunning;
 
+    private LinearLayout testingMenu;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -176,6 +178,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         tv2 = (TextView) findViewById(R.id.textView3);
         tv2.setVisibility(View.GONE);
+
+        testingMenu = (LinearLayout) findViewById(R.id.testingMenu);
 /*
         tv1.setVisibility(View.INVISIBLE);
         tv2.setVisibility(View.INVISIBLE);
@@ -294,6 +298,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return true;
     }
 
+    private boolean testingMenuSet = true;
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -302,10 +307,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (testingMenuSet) {
+            testingMenu.setVisibility(View.GONE);
+            testingMenuSet = false;
         }
+        else {
+            testingMenu.setVisibility(View.VISIBLE);
+            testingMenuSet = true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
