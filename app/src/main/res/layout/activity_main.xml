@@ -480,9 +480,63 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Fúzia dát: Kompas\n"      android:background="@drawable/sensorborder"
+        android:id="@+id/textViewM13aCompass"
+        android:layout_below="@+id/textViewM13b"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:paddingLeft="5dp"       android:visibility="visible"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pre fúziu dát a správne fungovanie kompasu je potrebné mať akcelerometer, magnetometer a zariadenie vo vodorovnej polohe.\n"
+        android:id="@+id/textViewM13bCompass"
+        android:layout_below="@+id/textViewM13aCompass"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorSensorCollector"
+        android:layout_marginTop="0dp"
+        android:paddingLeft="5dp"       android:visibility="visible"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textViewM13dCompass"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_below="@+id/textViewM13bCompass"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="8dp"         android:background="@color/colorSensorCollector"
+        android:layout_marginTop="-9dp"
+        android:paddingLeft="5dp"       android:visibility="visible"
+        >
+        <ImageView
+            android:id="@+id/textViewM13cCompass"
+            android:layout_width="115dp"
+            android:layout_height="115dp"
+            android:layout_centerInParent="true"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"       android:visibility="visible"
+            android:src="@drawable/compasssensorcollector" />
+    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="Senzor:"      android:background="@drawable/sensorborder"
         android:id="@+id/textViewM14a"
-        android:layout_below="@+id/textViewM13b"
+        android:layout_below="@+id/textViewM13dCompass"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"

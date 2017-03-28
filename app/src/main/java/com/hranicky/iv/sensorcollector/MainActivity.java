@@ -31,9 +31,12 @@ import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -136,9 +139,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private volatile String GPSData = "null;null;null;null;null";
 
     //TextView:
-    private volatile TextView m1a = null, m2a = null, m3a = null, m4a = null, m5a = null, m6a = null, m7a = null, m8a = null, m9a = null, m10a = null, m11a = null, m12a = null, m13a = null, m14a = null, m15a = null, m15aa = null, m16a = null, m17a = null, m18a = null, m19a = null, m20a = null, m21a = null, m22a = null, m23a = null, m24a = null, m25a = null;
-    private volatile TextView m1b = null, m2b = null, m3b = null, m4b = null, m5b = null, m6b = null, m7b = null, m8b = null, m9b = null, m10b = null, m11b = null, m12b = null, m13b = null, m14b = null, m15b = null, m15bb = null, m16b = null, m17b = null, m18b = null, m19b = null, m20b = null, m21b = null, m22b = null, m23b = null, m24b = null, m25b = null;
-
+    private volatile TextView m1a = null, m2a = null, m3a = null, m4a = null, m5a = null, m6a = null, m7a = null, m8a = null, m9a = null, m10a = null, m11a = null, m12a = null, m13a = null, m13aCompass = null, m14a = null, m15a = null, m15aa = null, m16a = null, m17a = null, m18a = null, m19a = null, m20a = null, m21a = null, m22a = null, m23a = null, m24a = null, m25a = null;
+    private volatile TextView m1b = null, m2b = null, m3b = null, m4b = null, m5b = null, m6b = null, m7b = null, m8b = null, m9b = null, m10b = null, m11b = null, m12b = null, m13b = null, m13bCompass = null, m14b = null, m15b = null, m15bb = null, m16b = null, m17b = null, m18b = null, m19b = null, m20b = null, m21b = null, m22b = null, m23b = null, m24b = null, m25b = null;
+    private volatile ImageView m13cCompass = null;
+    private volatile LinearLayout m13dCompass = null;
+    private float[] mCompass = new float[9];
+    private float[] mCompassOrientation = new float[3];
+    private float mCompassCurrentDegree = 0f;
+    private float[] mCompassAccelerometer = new float[3];
+    private float[] mCompassMagnetometer = new float[3];
     //Temperature
     private float temperature = (float) -500.0;
 
@@ -353,7 +362,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         tv2.append("\n" + lux + "\n\n");
 */
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) == event.sensor) {
-            m1b.setText("Hodnoty (m/s^2):\n");
+            //Kalmanov Filter
+            xKF = kalmanFilterUpdateDimensionData( event.values[0],1);
+            yKF = kalmanFilterUpdateDimensionData( event.values[1],2);
+            zKF = kalmanFilterUpdateDimensionData( event.values[2],3);
+
+            mCompassAccelerometer[0] = xKF;
+            mCompassAccelerometer[1] = yKF;
+            mCompassAccelerometer[2] = zKF;
+
+            m1b.setText("Hodnoty s použitím Kalmanovho filtra (m/s^2):\n");
+
             /*
             When the device lies flat on a table and is pushed on its left side toward the right, the x acceleration value is positive.
             When the device lies flat on a table, the acceleration value is +9.81, which correspond to the acceleration of the device (0 m/s^2) minus the force of gravity (-9.81 m/s^2).
@@ -369,21 +388,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 float[] linear_acceleration = new float[3];
              */
 
-            gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
-            gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
-            gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+            gravity[0] = alpha * gravity[0] + (1 - alpha) * xKF;
+            gravity[1] = alpha * gravity[1] + (1 - alpha) * yKF;
+            gravity[2] = alpha * gravity[2] + (1 - alpha) * zKF;
 
-            linear_acceleration[0] = event.values[0] - gravity[0];
-            linear_acceleration[1] = event.values[1] - gravity[1];
-            linear_acceleration[2] = event.values[2] - gravity[2];
+            linear_acceleration[0] = xKF - gravity[0];
+            linear_acceleration[1] = yKF - gravity[1];
+            linear_acceleration[2] = zKF - gravity[2];
 
+            //Write values
             writeValues("x", m1b, linear_acceleration[0]);
             writeValues("y", m1b, linear_acceleration[1]);
             writeValues("z", m1b, linear_acceleration[2]);
+
+
+            m1b.append("Dáta upravené kalmanovým filtrom (m/s^2):\n");
+            writeValues("x", m1b, (float) xKF);
+            writeValues("y", m1b, (float) yKF);
+            writeValues("z", m1b, (float) zKF);
+
             m1b.append("Neupravené dáta zo senzoru (m/s^2):\n");
             writeValues("x", m1b, event.values[0]);
             writeValues("y", m1b, event.values[1]);
             writeValues("z", m1b, event.values[2]);
+
 
             allSC[0] = linear_acceleration[0];
             allSC[1] = linear_acceleration[1];
@@ -519,6 +547,41 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             allSC[36] = event.values[0];
             allSC[37] = event.values[1];
             allSC[38] = event.values[2];
+
+            xmKF = kalmanFilterUpdateDimensionData( event.values[0],4);
+            ymKF = kalmanFilterUpdateDimensionData( event.values[1],5);
+            zmKF = kalmanFilterUpdateDimensionData( event.values[2],6);
+
+            m13b.append("Hodnoty okolitého magnetického poľa upravené Kalmanovým filtrom (uT):\n");
+            writeValues("x", m13b, xmKF);
+            writeValues("y", m13b, ymKF);
+            writeValues("z", m13b, zmKF);
+
+            //Data Fusion: Compass
+            if(kalmanSet3) {
+
+                mCompassMagnetometer[0] = xmKF;
+                mCompassMagnetometer[1] = ymKF;
+                mCompassMagnetometer[2] = zmKF;
+
+                SensorManager.getRotationMatrix(mCompass, null, mCompassAccelerometer, mCompassMagnetometer);
+                SensorManager.getOrientation(mCompass, mCompassOrientation);
+                float azimuthInRadians = mCompassOrientation[0];
+                float azimuthInDegress = (float)(Math.toDegrees(azimuthInRadians)+360)%360;
+                RotateAnimation compassPointer = new RotateAnimation(
+                        mCompassCurrentDegree,
+                        -azimuthInDegress,
+                        Animation.RELATIVE_TO_SELF, 0.5f,
+                        Animation.RELATIVE_TO_SELF, 0.5f);
+
+                compassPointer.setDuration(250);
+
+                compassPointer.setFillAfter(true);
+
+                m13cCompass.startAnimation(compassPointer);
+                mCompassCurrentDegree = -azimuthInDegress;
+            }
+
         } else if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) == event.sensor) {
             m14b.setText("Hodnoty okolitého magnetického poľa v osiach bez kalibrácie ťažkými kovmi (uT):\n");
             writeValues("x", m14b, event.values[0]);
@@ -858,8 +921,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         zaciatokPrenosu = System.currentTimeMillis();
         JSONArray jsonArr = new JSONArray();
         try {
+            Cursor cursor;
             for (int i = 1; i <= max; i++) {
-                Cursor cursor = sc.rawQuery("SELECT * FROM 'scData' WHERE id = '" + i + "'", null);
+                cursor = sc.rawQuery("SELECT * FROM 'scData' WHERE id = '" + i + "'", null);
                 cursor.moveToFirst();
                 JSONObject jsonOb = new JSONObject();
                 jsonOb.put("'datum'", cursor.getString(1));
@@ -953,13 +1017,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         zaciatokPrenosu = System.currentTimeMillis();
         String csvArr = "";
         try {
+            Cursor cursor;
             csvArr = csvArr + "'datum';'accelerometer';'ambient_temperature';'device_private_base';'game_rotation_vector';'geomagnetic_rotation_vector';" +
                     "'gravity';'gyroscope';'gyroscope_uncalibrated';'heart_beat';'heart_rate';" +
                     "'light';'linear_acceleration';'magnetic_field';'magnetic_field_uncalibrated';'motion_detect';" +
                     "'orientation';'pose_6dof';'pressure';'proximity';'relative_humidity';" +
                     "'rotation_vector';'significant_motion';'stationary_detect';'step_counter';'step_detector';'gps'\n";
             for (int i = 1; i <= max; i++) {
-                Cursor cursor = sc.rawQuery("SELECT * FROM 'scData' WHERE id = '" + i + "'", null);
+                cursor = sc.rawQuery("SELECT * FROM 'scData' WHERE id = '" + i + "'", null);
                 cursor.moveToFirst();
                 csvArr = csvArr + "\"" + cursor.getString(1) + "\";";
                 csvArr = csvArr + "\"" + cursor.getString(2) + "\";";
@@ -1184,7 +1249,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             sc.execSQL("INSERT INTO 'scData' VALUES(" + actual + "," +
                     "'" + datum + "'," +
-                    "'" + allSC[0] + ";" + allSC[1] + ";" + allSC[2] + ";" + allSC[3] + ";" + allSC[4] + ";" + allSC[5] + "'," +
+                    "'" + allSC[0] + ";" + allSC[1] + ";" + allSC[2] + ";" + xKF + ";" + yKF + ";" + zKF + ";" + allSC[3] + ";" + allSC[4] + ";" + allSC[5] + "'," +
                     "'" + allSC[6] + "'," +
                     "'" + allSC[7] + "'," +
                     "'" + allSC[8] + ";" + allSC[9] + ";" + allSC[10] + ";" + allSC[11] + ";" + allSC[12] + "'," +
@@ -1196,7 +1261,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     "'" + allSC[31] + "'," +
                     "'" + allSC[32] + "'," +
                     "'" + allSC[33] + ";" + allSC[34] + ";" + allSC[35] + "'," +
-                    "'" + allSC[36] + ";" + allSC[37] + ";" + allSC[38] + "'," +
+                    "'" + allSC[36] + ";" + allSC[37] + ";" + allSC[38] + ";" + xmKF + ";" + ymKF + ";" + zmKF + "'," +
                     "'" + allSC[39] + ";" + allSC[40] + ";" + allSC[41] + ";" + allSC[42] + ";" + allSC[43] + ";" + allSC[44] + "'," +
                     "'" + allSC[45] + "'," +
                     "'" + allSC[46] + ";" + allSC[47] + ";" + allSC[48] + "'," +
@@ -1391,6 +1456,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             m13a.append("\nNázov: " + mMAGNETIC_FIELD.getName() + "\nPredajca: " + mMAGNETIC_FIELD.getVendor() + "\nVerzia: " + mMAGNETIC_FIELD.getVersion() + "\n");
 
         }
+
+        m13aCompass.setVisibility(View.VISIBLE);
+        m13bCompass.setVisibility(View.VISIBLE);
 
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED) != null) {
             // Success! There's a pressure sensor.
@@ -1600,6 +1668,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         m11a=(TextView) findViewById(R.id.textViewM11a);
         m12a=(TextView) findViewById(R.id.textViewM12a);
         m13a=(TextView) findViewById(R.id.textViewM13a);
+        m13aCompass=(TextView) findViewById(R.id.textViewM13aCompass);
         m14a=(TextView) findViewById(R.id.textViewM14a);
         m15a=(TextView) findViewById(R.id.textViewM15a);
         m15aa=(TextView) findViewById(R.id.textViewM15aa);
@@ -1627,6 +1696,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         m11b=(TextView) findViewById(R.id.textViewM11b);
         m12b=(TextView) findViewById(R.id.textViewM12b);
         m13b=(TextView) findViewById(R.id.textViewM13b);
+        m13bCompass=(TextView) findViewById(R.id.textViewM13bCompass);
         m14b=(TextView) findViewById(R.id.textViewM14b);
         m15b=(TextView) findViewById(R.id.textViewM15b);
         m15bb=(TextView) findViewById(R.id.textViewM15bb);
@@ -1641,6 +1711,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         m24b=(TextView) findViewById(R.id.textViewM24b);
         m25b=(TextView) findViewById(R.id.textViewM25b);
 
+        m13cCompass=(ImageView) findViewById(R.id.textViewM13cCompass);
+        m13dCompass=(LinearLayout) findViewById(R.id.textViewM13dCompass);
     }
 
     public void setListener(Sensor s){
@@ -1665,5 +1737,102 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             });*/
         }
 
+    }
+
+    //Kalman filter for 1-3 dimensions
+    private float xKF = 0;
+    private float yKF = 0;
+    private float zKF = 0;
+
+    private float xmKF = 0;
+    private float ymKF = 0;
+    private float zmKF = 0;
+
+    private float _q[] = new float[6]; // = 0; //process noise covariance
+    private float _r[] = new float[6]; // = 1; //measurement noise covariance
+    private float _x[] = new float[6]; // = 0; //value
+    private float _y[] = new float[6]; // = 0; //value
+    private float _p[] = new float[6]; // = 1; //estimation error covariance
+    private float _k[] = new float[6]; // = (float) 0.5; //kalman gain
+    private boolean kalmanSet1 = false;
+    private boolean kalmanSet2 = false;
+    private boolean kalmanSet3 = false;
+    private boolean kalmanSet4 = false;
+    private boolean kalmanSet5 = false;
+    private boolean kalmanSet6 = false;
+
+    public float kalmanFilterUpdateDimensionData (float measurement, int i){
+        //prediction update
+        float qstart = (float) 0.125;
+        float rpstart = (float) 32;
+        float kstart = (float) 0.5;
+
+        float qstartM = (float) 4;
+        float rpstartM = (float) 32;
+        float kstartM = (float) 0.5;
+        //omit _x = _x
+        if ((!kalmanSet1) && (i == 1)) {
+            kalmanSet1 = true;
+            _x[i-1] = measurement;
+            _q[i-1] = qstart;
+            _r[i-1] = rpstart;
+            _p[i-1] = rpstart;
+            _k[i-1] = kstart;
+        }
+
+        if ((!kalmanSet2) && (i == 2)) {
+            kalmanSet2 = true;
+            _x[i-1] = measurement;
+            _q[i-1] = qstart;
+            _r[i-1] = rpstart;
+            _p[i-1] = rpstart;
+            _k[i-1] = kstart;
+        }
+
+        if ((!kalmanSet3) && (i == 3)) {
+            kalmanSet3 = true;
+            _x[i-1] = measurement;
+            _q[i-1] = qstart;
+            _r[i-1] = rpstart;
+            _p[i-1] = rpstart;
+            _k[i-1] = kstart;
+        }
+
+        if ((!kalmanSet4) && (i == 4)) {
+            kalmanSet4 = true;
+            _x[i-1] = measurement;
+            _q[i-1] = qstartM;
+            _r[i-1] = rpstartM;
+            _p[i-1] = rpstartM;
+            _k[i-1] = kstartM;
+        }
+
+        if ((!kalmanSet5) && (i == 5)) {
+            kalmanSet5 = true;
+            _x[i-1] = measurement;
+            _q[i-1] = qstartM;
+            _r[i-1] = rpstartM;
+            _p[i-1] = rpstartM;
+            _k[i-1] = kstartM;
+        }
+
+        if ((!kalmanSet6) && (i == 6)) {
+            kalmanSet6 = true;
+            _x[i-1] = measurement;
+            _q[i-1] = qstartM;
+            _r[i-1] = rpstartM;
+            _p[i-1] = rpstartM;
+            _k[i-1] = kstartM;
+        }
+
+        _p[i-1] = _p[i-1] + _q[i-1];
+
+        //measurement update
+        _k[i-1] = _p[i-1] / (_p[i-1] + _r[i-1]);
+        _y[i-1] = (measurement - _x[i-1]);
+        _x[i-1] = _x[i-1] + _k[i-1] * _y[i-1];
+        _p[i-1] = (1 - _k[i-1]) * _p[i-1];
+
+        return _x[i-1];
     }
 }
