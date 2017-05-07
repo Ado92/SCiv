@@ -672,7 +672,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 absoluteHumidity = (float) (216.7 * (event.values[0] / 100.0 * 6.112 * Math.exp(17.62 * temperature / (243.12 + temperature)) / (273.15 + temperature)));
                 m19b.append("Teplota potrebná na zkondenzovanie vzduchu (°C):\n");
                 writeValues("Rosný bod", m19b, dewPoint);
-                m19a.append("Množstvo vodnej pary v určitom množstvo suchého vzduchu (g/m^3)");
+                m19a.append("Množstvo vodnej pary v určitom množstve suchého vzduchu (g/m^3)");
                 writeValues("Absolútna vlhkosť", m19b, absoluteHumidity);
 
                 allSC[67] = dewPoint;
